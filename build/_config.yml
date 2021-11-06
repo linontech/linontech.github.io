@@ -5,8 +5,8 @@ destination: ../docs
 #destination: ../dist
 
 # Site settings
-title: "威廉 的 程式 筆記"
-SEOTitle: "威廉 的 程式 筆記"
+title: ""
+SEOTitle: ""
 header-img: img/concretewall.jpg
 email: your-email-address-here
 description: ""
