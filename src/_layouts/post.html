@@ -29,6 +29,9 @@ layout: default
                     {{ content }}
                 </div>
 
+                <!-- 版权声明 -->
+                {% include copyright.html %}
+
                 <hr style="visibility: hidden;">
                 <ul class="pager">
                     {% if page.previous.url %}
@@ -89,11 +92,7 @@ layout: default
             col-md-10 col-md-offset-1
             sidebar-container">
 
-            <!-- Featured Tags -->
-            {% include featured-tags.html bottom=true %}
 
-            <!-- Friends Blog -->
-            {% include friends.html %}
         </div>
     </div>
 </div>
