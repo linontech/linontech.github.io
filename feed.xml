@@ -1,13 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>威廉 的 程式 筆記</title>
+    <title></title>
     <description></description>
     <link>/lin537xisme/</link>
     <atom:link href="/lin537xisme/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 21 Mar 2021 15:44:57 +0000</pubDate>
-    <lastBuildDate>Sun, 21 Mar 2021 15:44:57 +0000</lastBuildDate>
+    <pubDate>Sun, 07 Nov 2021 13:02:19 +0000</pubDate>
+    <lastBuildDate>Sun, 07 Nov 2021 13:02:19 +0000</lastBuildDate>
     <generator>Jekyll v4.1.1</generator>
+    
+      <item>
+        <title>ELK 小白記錄</title>
+        <description>&lt;p&gt;ELK是ElasticSearch， Logstash， Kibana三個名詞合在一起的縮寫。 通常用於日誌管理，從集群中的多個service收集日誌，避免開發者直接登入server，
+使得生產環境的安全和查找問題的便利性。&lt;/p&gt;
+
+&lt;p&gt;其中，ElasticSearch提供日誌保存，檢索和分析的功能，基於 Apache 
+Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除了將一些常用的反序列數據的功能變得很好上手，如常見的json，csv。更強大的是， 
+grok， dissect 等插件，將非結構化的字符串轉換成結構化的數據， 當然也可以添加或刪除欄位 add_field， 
+remove_field。Kibana 則提供資料視覺化的dashboard，直觀的 Kibana Query Language，讓使用者可以更快知道資料的全貌。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Beat and Logstash&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Beats 是一個小型的日誌發送程序的集合，大家最常使用的就是 Filebeat，它能夠將日誌發送到 ELK 集群。除此之外，Beat家族還包括 Packetbeat, 
+Metricbeat，Heartbeat，Functionbeat … 等。一般在將日誌文件導入到ElasticSearch進行檢索時，會同時使用 
+Filebeat和Logstash，Filebeat負責將服務器上的日誌發送到ELK集群，Logstash則負責將日誌數據轉換成我們需要的格式。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;ElasticSearch&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;ElasticSearch 和 MongoDB一樣都是NoSQL的資料庫，所有的資料都以JSON格式讀取。不同於傳統的關係型資料庫，文檔和文檔之間的關係會使用 
+join來串接，ElasticSearch 通常會用使用sub document的方式。 此外，ElasticSearch 對所有欄位都可以建立索引，並且可以根據不同的用途建立索引。&lt;/p&gt;
+</description>
+        <pubDate>Sat, 06 Nov 2021 00:00:00 +0000</pubDate>
+        <link>/lin537xisme/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84.html</link>
+        <guid isPermaLink="true">/lin537xisme/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84.html</guid>
+        
+        
+      </item>
     
   </channel>
 </rss>

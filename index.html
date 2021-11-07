@@ -11,16 +11,16 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="HOME - 威廉 的 程式 筆記">
+    <meta property="og:title" content="HOME - ">
     
     <meta property="og:type" content="website">
-    <meta property="og:description" content="世界上有很多的东西">
+    <meta property="og:description" content="">
     
     <meta property="og:image" content="/lin537xisme/blog/img/sword.jpg">
     <meta property="og:url" content="/">
-    <meta property="og:site_name" content="威廉 的 程式 筆記">
+    <meta property="og:site_name" content="">
 
-    <title>HOME - 威廉 的 程式 筆記</title>
+    <title>HOME - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/lin537xisme/pwa/manifest.json">
@@ -71,7 +71,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/lin537xisme/">威廉 的 程式 筆記</a>
+            <a class="navbar-brand" href="/lin537xisme/"></a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -179,7 +179,8 @@
         <div class="site-heading" id="tag-heading">
         
           <h3 id="intro-header-item">HOME</h3>
-          <span class="subheading">世界上有很多的东西</span>
+          <span class="subheading"></span>
+          <span class="meta"></span>
         </div>
       </div>
     </div>
@@ -203,6 +204,67 @@
 <!--<h1>0</h1>-->
 
 
+<div class="post-preview">
+    <a href="/lin537xisme/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84.html">
+        <h2 class="post-title">
+            ELK 小白記錄
+        </h2>
+        
+        <h3 class="post-subtitle">
+            
+        </h3>
+        
+    </a>
+    <p class="post-meta">
+        November 6, 2021 &nbsp;|&nbsp;
+        约3分钟读完
+        大约774个字
+
+        
+        <!--        -->
+        <!--            &nbsp;|&nbsp;-->
+        <!--            <span class="tags tags-sup">-->
+        <!--            -->
+        <!--            </span>-->
+        <!--        -->
+    </p>
+    <div class="post-content-preview">
+        
+        <p>ELK是ElasticSearch， Logstash， Kibana三個名詞合在一起的縮寫。 通常用於日誌管理，從集群中的多個service收集日誌，避免開發者直接登入server，
+使得生產環境的安全和查找問題的便利性。</p>
+
+<p>其中，ElasticSearch提供日誌保存，檢索和分析的功能，基於 Apache 
+Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除了將一些常用的反序列數據的功能變得很好上手，如常見的json，csv。更強大的是， 
+grok， dissect 等插件，將非結構化的字符串轉換成結構化的數據， 當然也可以添加或刪除欄位 add_field， 
+remove_field。Kibana 則提供資料視覺化的dashboard，直觀的 Kibana Query Language，讓使用者可以更快知道資料的全貌。</p>
+
+<ul>
+  <li>Beat and Logstash</li>
+</ul>
+
+<p>Beats 是一個小型的日誌發送程序的集合，大家最常使用的就是 Filebeat，它能夠將日誌發送到 ELK 集群。除此之外，Beat家族還包括 Packetbeat, 
+Metricbeat，Heartbeat，Functionbeat … 等。一般在將日誌文件導入到ElasticSearch進行檢索時，會同時使用 
+Filebeat和Logstash，Filebeat負責將服務器上的日誌發送到ELK集群，Logstash則負責將日誌數據轉換成我們需要的格式。</p>
+
+<ul>
+  <li>ElasticSearch</li>
+</ul>
+
+<p>ElasticSearch 和 MongoDB一樣都是NoSQL的資料庫，所有的資料都以JSON格式讀取。不同於傳統的關係型資料庫，文檔和文檔之間的關係會使用 
+join來串接，ElasticSearch 通常會用使用sub document的方式。 此外，ElasticSearch 對所有欄位都可以建立索引，並且可以根據不同的用途建立索引。</p>
+
+        
+    </div>
+
+    <!-- capture tags for every article -->
+    
+    
+    <br/>
+
+    <hr/>
+    <!--  Posted by -->
+</div>
+
 
 <!-- Pager -->
 
@@ -214,86 +276,6 @@
             col-lg-8 col-lg-offset-2
             col-md-10 col-md-offset-1
             sidebar-container">
-
-            <!-- Featured Tags -->
-            
-
-
-
-
-            <!-- Friends Blog -->
-            
-<hr>
-<h5>WATCH LIST</h5>
-<ul class="list-inline">
-  
-  <li><a href="http://su.gallery/">Su</a></li>
-  
-  <li><a href="http://mida.re/">乱序</a></li>
-  
-  <li><a href="https://xuechundesign.github.io">Sherry Wu</a></li>
-  
-  <li><a href="http://hmqk1995.github.io">Luke 的自留地</a></li>
-  
-  <li><a href="http://ebnbin.com/">Ebn's Blog</a></li>
-  
-  <li><a href="http://blog.smdcn.net">SmdCn's Blog</a></li>
-  
-  <li><a href="http://tiye.me/">JiyinYiyong</a></li>
-  
-  <li><a href="https://www.ruoyaowu.com/">David's Game</a></li>
-  
-  <li><a href="http://dhong.co">DHong Say</a></li>
-  
-  <li><a href="http://ingf.github.io/">尹峰以为</a></li>
-  
-  <li><a href="https://duter2016.github.io/">优源博客</a></li>
-  
-  <li><a href="huangxuan.me">Hux Blog</a></li>
-  
-  <li><a href="https://yizibi.github.io/">一之笔</a></li>
-  
-  <li><a href="https://www.raymondcamden.com/">RAYMOND CAMDEN</a></li>
-  
-  <li><a href="https://www.jonathan-petitcolas.com/">Jonathan Petitcolas</a></li>
-  
-  <li><a href="https://blog.techbridge.cc/">TechBridge 技術共筆部落格</a></li>
-  
-  <li><a href="">冰封承诺</a></li>
-  
-  <li><a href="">梁音</a></li>
-  
-  <li><a href="">ChenYuan</a></li>
-  
-  <li><a href="">米米的博客</a></li>
-  
-  <li><a href="">星光的博客</a></li>
-  
-  <li><a href="">UncleChen</a></li>
-  
-  <li><a href="">横云断岭</a></li>
-  
-  <li><a href="">tidy的个人博客</a></li>
-  
-  <li><a href="">背不起来的就写下来吧</a></li>
-  
-  <li><a href="">forever杨的个人博客</a></li>
-  
-  <li><a href="">JerryQu的小站</a></li>
-  
-  <li><a href="">OneBlog开源博客</a></li>
-  
-  <li><a href="">Parian's Blog</a></li>
-  
-  <li><a href="">bieleyang的博客</a></li>
-  
-  <li><a href="">散尽浮华-博客园</a></li>
-  
-  <li><a href="">王清培-博客园</a></li>
-  
-  <li><a href="http://tengj.top/2017/05/05/javabook/">嘟嘟独立博客</a></li>
-  
-</ul>
 
 
         </div>
@@ -326,7 +308,7 @@
 </ul>
 
                 <p class="copyright text-muted">
-                    Copyright &copy; 威廉 的 程式 筆記 2021
+                    Copyright &copy;  2021
                     <span id="htmer_time" style=""></span>
                     <br>
                     Powered by Huxpro, Jekyll, Maintained By <a href="">lin537x</a> |
@@ -416,65 +398,12 @@
 <!-- Multi-Lingual -->
 
 
-<!-- 计算网站运行时间 -->
-<script language=JavaScript>
-function secondToDate(second) {
- if (!second) {
-     return 0;
- }
-
- var time = new Array(0, 0, 0, 0, 0);
-
- if (second >= 365 * 24 * 3600) {
-     time[0] = parseInt(second / (365 * 24 * 3600));
-     second %= 365 * 24 * 3600;
- }
-
- if (second >= 24 * 3600) {
-     time[1] = parseInt(second / (24 * 3600));
-     second %= 24 * 3600;
- }
-
- if (second >= 3600) {
-     time[2] = parseInt(second / 3600);
-     second %= 3600;
- }
-
- if (second >= 60) {
-     time[3] = parseInt(second / 60);
-     second %= 60;
- }
-
- if (second > 0) {
-     time[4] = second;
- }
- return time;
-}
-<!-- 动态显示网站运行时间 -->
-function setTime() {
-    var create_time = Math.round(new Date(Date.UTC(2020, 01, 08, 0, 0, 0)).getTime() / 1000);
-    var timestamp = Math.round((new Date().getTime() + 8 * 60 * 60 * 1000) / 1000);
-    currentTime = secondToDate((timestamp - create_time));
-    currentTimeHtml = '本站已运行' + currentTime[0] + '年' + currentTime[1] + '天' + currentTime[2] + '时' + currentTime[3] + '分' + currentTime[4] + '秒';
-    document.getElementById("htmer_time").innerHTML = currentTimeHtml;
-}
-setInterval(setTime, 1000);
-</script>
-
-<script type="text/javascript">
-$('.navbar-nav a').click(function(e) {
-    e.stopPropagation();
-    $('.navbar-nav a').removeClass('active');
-    $(this).addClass('active');
-});
-</script>
-
 
     <!-- Image to hack wechat -->
     <img src="/lin537xisme/img/icon_wechat.png" width="0" height="0" />
     <!-- Migrate from head to bottom, no longer block render and still work -->
 
-    <script type="text/javascript" src="/lin537xisme/vendor.d62d275605722462b4b7.js"></script><script type="text/javascript" src="/lin537xisme/main.3134c672562bb62ff60a.js"></script>
+    <script type="text/javascript" src="/lin537xisme/vendor.cd1366689cf063ec5d17.js"></script><script type="text/javascript" src="/lin537xisme/main.3134c672562bb62ff60a.js"></script>
 
 </body>
 

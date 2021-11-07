@@ -11,16 +11,25 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="About - ">
+    <meta property="og:title" content="ELK 小白記錄 - ">
     
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="ELK是ElasticSearch， Logstash， Kibana三個名詞合在一起的縮寫。 通常用於日誌管理，從集群中的多個service收集日誌，避免開發者直接登入server，
+使得生產環境的安全和查找問題的便利性。
+
+其中，ElasticSearch提供日誌保存，檢索和分析的功能，基於 Apache 
+Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除了將...">
+    
+    <meta property="article:published_time" content="2021-11-06T00:00:00Z">
+    
+    
+    
     
     <meta property="og:image" content="/lin537xisme/blog/img/sword.jpg">
-    <meta property="og:url" content="/about.html">
+    <meta property="og:url" content="/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84.html">
     <meta property="og:site_name" content="">
 
-    <title>About - </title>
+    <title>ELK 小白記錄 - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/lin537xisme/pwa/manifest.json">
@@ -29,7 +38,7 @@
     <link rel="shortcut icon" href="/lin537xisme/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/lin537xisme/about.html">
+    <link rel="canonical" href="/lin537xisme/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84.html">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/lin537xisme/css/bootstrap.min.css">
@@ -163,7 +172,11 @@
 </script>
 
 
-    <!-- Page Header -->
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/lin537xisme/img/concretewall.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
 
 
 
@@ -178,9 +191,9 @@
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">About</h3>
+          <h3 id="intro-header-item">ELK 小白記錄</h3>
           <span class="subheading"></span>
-          <span class="meta"></span>
+          <span class="meta">November 6, 2021</span>
         </div>
       </div>
     </div>
@@ -189,65 +202,68 @@
 
 
 
-<!-- Main Content -->
-<div class="container">
-	<div class="row">
-    
-    <!-- NO SIDEBAR -->
-    <!-- PostList Container -->
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
-            <div id="app">
-                                <!-- Language Selector -->
-                <select class="sel-lang" onchange= "onLanChange(this.options[this.options.selectedIndex].value)">
-                    <option value="0" selected> 中文 | Chinese </option>
-                    <option value="1"> 英文 | English </option>
-                </select>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
 
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
 
+                <!-- Multi-Lingual -->
+                
 
-<!-- Chinese Version -->
-<div class="zh post-container">
-    
-    
+                <div id="app">
+                    <p>ELK是ElasticSearch， Logstash， Kibana三個名詞合在一起的縮寫。 通常用於日誌管理，從集群中的多個service收集日誌，避免開發者直接登入server，
+使得生產環境的安全和查找問題的便利性。</p>
 
-</div>
+<p>其中，ElasticSearch提供日誌保存，檢索和分析的功能，基於 Apache 
+Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除了將一些常用的反序列數據的功能變得很好上手，如常見的json，csv。更強大的是， 
+grok， dissect 等插件，將非結構化的字符串轉換成結構化的數據， 當然也可以添加或刪除欄位 add_field， 
+remove_field。Kibana 則提供資料視覺化的dashboard，直觀的 Kibana Query Language，讓使用者可以更快知道資料的全貌。</p>
 
-<!-- English Version -->
-<div class="en post-container">
-    
-    
+<ul>
+  <li>Beat and Logstash</li>
+</ul>
 
-</div>
+<p>Beats 是一個小型的日誌發送程序的集合，大家最常使用的就是 Filebeat，它能夠將日誌發送到 ELK 集群。除此之外，Beat家族還包括 Packetbeat, 
+Metricbeat，Heartbeat，Functionbeat … 等。一般在將日誌文件導入到ElasticSearch進行檢索時，會同時使用 
+Filebeat和Logstash，Filebeat負責將服務器上的日誌發送到ELK集群，Logstash則負責將日誌數據轉換成我們需要的格式。</p>
 
+<ul>
+  <li>ElasticSearch</li>
+</ul>
 
+<p>ElasticSearch 和 MongoDB一樣都是NoSQL的資料庫，所有的資料都以JSON格式讀取。不同於傳統的關係型資料庫，文檔和文檔之間的關係會使用 
+join來串接，ElasticSearch 通常會用使用sub document的方式。 此外，ElasticSearch 對所有欄位都可以建立索引，並且可以根據不同的用途建立索引。</p>
 
-<!-- disqus 评论框 start -->
-<div class="comment">
-    <div id="disqus_thread" class="disqus-thread">
+                </div>
 
-    </div>
-</div>
-<!-- disqus 评论框 end -->
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    
+            </ul>
+            <hr style="visibility: hidden;">
 
-<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES * * */
-    var disqus_shortname = "lemon537x";
-    var disqus_identifier = "lemon537x//about.html";
-    var disqus_url = "/about.html";
-
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-</script>
-<!-- disqus 公共JS代码 end -->
-
-
+            
+            <!-- disqus 评论框 start -->
+            <div class="comment">
+                <div id="disqus_thread" class="disqus-thread"></div>
             </div>
+            <!-- disqus 评论框 end -->
+            
+
+            
         </div>
-        <!-- Sidebar Container -->
+
+    <!-- Side Catalog Container -->
+    
+
+<!-- Sidebar Container -->
         <div class="
             col-lg-8 col-lg-offset-2
             col-md-10 col-md-offset-1
@@ -255,10 +271,68 @@
 
 
         </div>
-    
-	</div>
+    </div>
 </div>
+</article>
 
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+    <!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES * * */
+        var disqus_shortname = "lemon537x";
+        var disqus_identifier = "/2021/11/06/ELK-小白記錄";
+        var disqus_url = "/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84.html";
+
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <!-- disqus 公共JS代码 end -->
+
+
+
+
+    <!-- async load function -->
+    <script>
+        function async(u, c) {
+          var d = document, t = 'script',
+              o = d.createElement(t),
+              s = d.getElementsByTagName(t)[0];
+          o.src = u;
+          if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+          s.parentNode.insertBefore(o, s);
+        }
+    </script>
+    <!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+    <script>
+        async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+            anchors.options = {
+              visible: 'hover',
+              placement: 'right',
+              // icon: '#'
+            };
+            anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+        })
+    </script>
+    <style>
+        /* place left on bigger screen */
+        @media all and (min-width: 800px) {
+            .anchorjs-link{
+                position: absolute;
+                left: -0.75em;
+                font-size: 1.1em;
+                margin-top : -0.1em;
+            }
+        }
+    </style>
 
 
 
@@ -372,58 +446,6 @@
 
 
 <!-- Multi-Lingual -->
-
-<!-- Handle Language Change -->
-<script type="text/javascript">
-    // get nodes
-    var $zh = document.querySelector(".zh");
-    var $en = document.querySelector(".en");
-    var $select = document.querySelector("select");
-
-    // Changes at v1.8.1: include lang flag as a url query. This interop well with catalog hash anchors.
-    function getLang() { return new URLSearchParams(document.location.search).get("lang") }
-
-    function setLang(newLang) {
-        var params = new URLSearchParams(document.location.search)
-        params.set("lang", newLang)
-        document.location.search = params.toString()  // refresh.
-    }
-
-    // handle render
-    function _render(){
-        var lang = getLang()
-        // en
-        if(lang == "en"){
-            $select.selectedIndex = 1;
-            $en.style.display = "block";
-            $en.classList.add("active");
-            $zh.style.display = "none";
-            $zh.classList.remove("active");
-        // default to zh-cn
-        }else{
-            $select.selectedIndex = 0;
-            $zh.style.display = "block";
-            $zh.classList.add("active");
-            $en.style.display = "none";
-            $en.classList.remove("active");
-        }
-        // interop with catalog
-        if ("") generateCatalog(".catalog-body");
-    }
-
-    // handle select change
-    function onLanChange(index){
-        if(index == 0){
-            lang = "zh"
-        }else{
-            lang = "en"
-        }
-        setLang(lang)
-    }
-
-    // init
-    _render();
-</script>
 
 
 
