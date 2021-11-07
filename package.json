@@ -63,7 +63,7 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
     "watch": "cross-env NODE_ENV=development webpack --watch"
   },
-  "description": "程式 筆記 ========",
+  "description": "",
   "main": "Gruntfil.js",
   "dependencies": {
     "vue": "^2.6.11"
