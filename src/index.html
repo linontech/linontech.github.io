@@ -1,7 +1,7 @@
 ---
 layout: page
 title: HOME
-description: 世界上有很多的东西
+description: ""
 hide-in-nav: true
 ---
 
@@ -19,6 +19,23 @@ hide-in-nav: true
         </h3>
         {% endif %}
     </a>
+    <p class="post-meta">
+        {{ post.date | date: "%B %-d, %Y" }} &nbsp;|&nbsp;
+        约{{ post.content | strip_html | strip_newlines | remove: " " | size | divided_by: 350 | plus: 1 }}分钟读完
+        大约{{ post.content | strip_html | strip_newlines | remove: " " | size }}个字
+
+        {% for category in post.categories %}
+        {%- if forloop.first -%}&nbsp;|&nbsp;{%- endif -%} &nbsp;
+        <a href="{{ site.baseurl }}/categories.html?categories={{ category }}" title="{{ category }}">{{ category }}&nbsp;</a>
+        {% endfor %}
+        <!--        {% if has_article_tags == false %}-->
+        <!--        {% else %}-->
+        <!--            &nbsp;|&nbsp;-->
+        <!--            <span class="tags tags-sup">-->
+        <!--            {{ article_tags }}-->
+        <!--            </span>-->
+        <!--        {% endif %}-->
+    </p>
     <div class="post-content-preview">
         {% if post.lang == 'zh' %}
         {{ post.content }}
@@ -55,23 +72,7 @@ hide-in-nav: true
     {% endfor %}
     {% endcapture %}
     <br/>
-    <p class="post-meta">
-        {{ post.date | date: "%B %-d, %Y" }} &nbsp;|&nbsp;
-        约{{ post.content | strip_html | strip_newlines | remove: " " | size | divided_by: 350 | plus: 1 }}分钟读完
-        大约{{ post.content | strip_html | strip_newlines | remove: " " | size }}个字
 
-        {% for category in post.categories %}
-        {%- if forloop.first -%}&nbsp;|&nbsp;{%- endif -%} &nbsp;
-        <a href="{{ site.baseurl }}/categories.html?categories={{ category }}" title="{{ category }}">{{ category }}&nbsp;</a>
-        {% endfor %}
-        <!--        {% if has_article_tags == false %}-->
-        <!--        {% else %}-->
-        <!--            &nbsp;|&nbsp;-->
-        <!--            <span class="tags tags-sup">-->
-        <!--            {{ article_tags }}-->
-        <!--            </span>-->
-        <!--        {% endif %}-->
-    </p>
     <hr/>
     <!--  Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %}-->
 </div>

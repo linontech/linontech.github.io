@@ -18,7 +18,7 @@
         position: absolute;
         background: rgba(0,0,0, {{ page.header-mask }});
     }
-    {% endif %}
+{% endif %}
 </style>
 {% if page.header-style == 'text' %}
 <header class="intro-header style-text" >
@@ -117,6 +117,7 @@
         {% endif %}
           <h3 id="intro-header-item">{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</h3>
           <span class="subheading">{{ page.description }}</span>
+          <span class="meta">{{ page.date | date: "%B %-d, %Y" }}</span>
         </div>
       </div>
     </div>
