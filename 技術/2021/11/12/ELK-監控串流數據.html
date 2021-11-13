@@ -11,16 +11,25 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="About - ">
+    <meta property="og:title" content="ELK 監控串流 + Spark Structured Streaming - ">
     
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="之前的做法是，串流數據ETL的結果，寫到Kafka的同時也寫一份到ElasticSearch，這樣就可以在Kibana上面分析串流ETL的效能，但是這樣需要記錄串流數據每一段
+的時間戳，才能分析各段即時ETL的耗時。如果系統比較複雜，ETL數據串到最後會有一坨喇股的時間戳，只為了後面的Kibana分析使用。對中間的串流ETL而言都會是多餘的
+資源消耗。
+
+目前讓 logstash 收集各段串...">
+    
+    <meta property="article:published_time" content="2021-11-12T00:00:00Z">
+    
+    
+    
     
     <meta property="og:image" content="/lin537xisme/blog/img/sword.jpg">
-    <meta property="og:url" content="/about.html">
+    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/11/12/ELK-%E7%9B%A3%E6%8E%A7%E4%B8%B2%E6%B5%81%E6%95%B8%E6%93%9A.html">
     <meta property="og:site_name" content="">
 
-    <title>About - </title>
+    <title>ELK 監控串流 + Spark Structured Streaming - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/lin537xisme/pwa/manifest.json">
@@ -29,7 +38,7 @@
     <link rel="shortcut icon" href="/lin537xisme/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/lin537xisme/about.html">
+    <link rel="canonical" href="/lin537xisme/%E6%8A%80%E8%A1%93/2021/11/12/ELK-%E7%9B%A3%E6%8E%A7%E4%B8%B2%E6%B5%81%E6%95%B8%E6%93%9A.html">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/lin537xisme/css/bootstrap.min.css">
@@ -167,7 +176,11 @@
 </script>
 
 
-    <!-- Page Header -->
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/lin537xisme/img/concretewall.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
 
 
 
@@ -182,9 +195,9 @@
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">About</h3>
+          <h3 id="intro-header-item">ELK 監控串流 + Spark Structured Streaming</h3>
           <span class="subheading"></span>
-          <span class="meta"></span>
+          <span class="meta">November 12, 2021</span>
         </div>
       </div>
     </div>
@@ -193,63 +206,75 @@
 
 
 
-<!-- Main Content -->
-<div class="container">
-	<div class="row">
-    
-    <!-- NO SIDEBAR -->
-    <!-- PostList Container -->
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
-            <div id="app">
-                                <!-- Language Selector -->
-                <select class="sel-lang" onchange= "onLanChange(this.options[this.options.selectedIndex].value)">
-                    <option value="0" selected> 中文 | Chinese </option>
-                    <option value="1"> 英文 | English </option>
-                </select>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
 
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
 
+                <!-- Multi-Lingual -->
+                
 
-<!-- Chinese Version -->
-<div class="zh post-container">
-    
-    
-<p>這是一個使用 Jekyll + Vue.js 的框架，利用 vue.js 中的 b-pagination 實現了翻頁的功能。</p>
+                <div id="app">
+                    <p>之前的做法是，串流數據ETL的結果，寫到Kafka的同時也寫一份到ElasticSearch，這樣就可以在Kibana上面分析串流ETL的效能，但是這樣需要記錄串流數據每一段
+的時間戳，才能分析各段即時ETL的耗時。如果系統比較複雜，ETL數據串到最後會有一坨喇股的時間戳，只為了後面的Kibana分析使用。對中間的串流ETL而言都會是多餘的
+資源消耗。</p>
 
-</div>
+<p>目前讓 logstash 收集各段串流ETL的Kafka topic中的資料，並記錄 CreateTime。再根據event_id在 logstash 進行聚合，
+就能計算出平均一筆event，整個串流ETL pipeline所需要的時間。上述是比較細的計算方式，如果只需要簡單的知道每段串流ETL
+的效能，也可以只計算TPS(Transaction per seconds)，就是這段pipeline平均每秒處理了多少資料。</p>
 
-<!-- English Version -->
-<div class="en post-container">
-    
-    
-<p>This is a blog mix Jekyll and Vue.js. components/Pagination.vue implements pagination feature by b-pagination plugin.</p>
+<p>TPS不能真的反應即時串流ETL延遲的情況，也可以理解為一個batch所需要的最小的時間，會是這個即時ETL的最低延遲。
+如下說明，如果ETL串流的 Input Rate和Process Rate能保持差不多的速度，表示串流的處理資源足夠。但是，還是會有
+因為一個 batch處理了太多的數據，而發生高延遲。解決的方法，是在縮小每個batch的大小和增加更多平行計算的資源，比如更多的
+之間 Kafka partitions 或者更多的 Spark CPU core，之間找到平衡點。</p>
 
-</div>
+<ul>
+  <li>Spark Structured Streaming</li>
+</ul>
 
+<p>Spark Structured Streaming 是一個分佈式即時串流數據處理框架。他使用了 Spark 的 SQL/DataSet/DataFrame API，
+開發的人可以輕鬆的實現即時數據的聚合操作和 join 操作，還有窗口化 windowing。</p>
 
+<p>此外 Spark 3.0 開始，Structured Streaming 提供了一個監控串流ETL的監控 UI。可以清楚地看到，ETL串流的 Input Rate，
+Process Rate 等。</p>
 
-<script>
-    /**
-     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
-    /*
-    var disqus_config = function () {
-    this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-    };
-    */
-    var disqus_shortname = "williams-note";
-    (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://' + 'williams-note' + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
+                </div>
 
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/lin537xisme/%E7%94%9F%E6%B4%BB/2021/11/09/%E9%97%9C%E6%96%BC%E6%8F%90%E5%8D%87%E8%A6%BA%E5%AF%9F%E5%8A%9B-%E7%9C%9F%E6%AD%A3%E6%8E%A5%E7%B4%8D%E8%87%AA%E6%88%91.html" data-toggle="tooltip" data-placement="top" title="關於提升覺察力，真正接納自我">
+                        Previous<br>
+                        <span>關於提升覺察力，真正接納自我</span>
+                        </a>
+                    </li>
+                    
+                    
+            </ul>
+            <hr style="visibility: hidden;">
 
+            
+            <!-- disqus 评论框 start -->
+            <div class="comment">
+                <div id="disqus_thread" class="disqus-thread"></div>
             </div>
+            <!-- disqus 评论框 end -->
+            
+
+            
         </div>
-        <!-- Sidebar Container -->
+
+    <!-- Side Catalog Container -->
+    
+
+<!-- Sidebar Container -->
         <div class="
             col-lg-8 col-lg-offset-2
             col-md-10 col-md-offset-1
@@ -257,10 +282,72 @@
 
 
         </div>
-    
-	</div>
+    </div>
 </div>
+</article>
 
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+    <script>
+        /**
+         *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+         *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+        /*
+        var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        };
+        */
+        var disqus_shortname = "williams-note";
+        (function() { // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            s.src = 'https://' + 'williams-note' + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+
+
+
+
+    <!-- async load function -->
+    <script>
+        function async(u, c) {
+          var d = document, t = 'script',
+              o = d.createElement(t),
+              s = d.getElementsByTagName(t)[0];
+          o.src = u;
+          if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+          s.parentNode.insertBefore(o, s);
+        }
+    </script>
+    <!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+    <script>
+        async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+            anchors.options = {
+              visible: 'hover',
+              placement: 'right',
+              // icon: '#'
+            };
+            anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+        })
+    </script>
+    <style>
+        /* place left on bigger screen */
+        @media all and (min-width: 800px) {
+            .anchorjs-link{
+                position: absolute;
+                left: -0.75em;
+                font-size: 1.1em;
+                margin-top : -0.1em;
+            }
+        }
+    </style>
 
 
 
@@ -374,58 +461,6 @@
 
 
 <!-- Multi-Lingual -->
-
-<!-- Handle Language Change -->
-<script type="text/javascript">
-    // get nodes
-    var $zh = document.querySelector(".zh");
-    var $en = document.querySelector(".en");
-    var $select = document.querySelector("select");
-
-    // Changes at v1.8.1: include lang flag as a url query. This interop well with catalog hash anchors.
-    function getLang() { return new URLSearchParams(document.location.search).get("lang") }
-
-    function setLang(newLang) {
-        var params = new URLSearchParams(document.location.search)
-        params.set("lang", newLang)
-        document.location.search = params.toString()  // refresh.
-    }
-
-    // handle render
-    function _render(){
-        var lang = getLang()
-        // en
-        if(lang == "en"){
-            $select.selectedIndex = 1;
-            $en.style.display = "block";
-            $en.classList.add("active");
-            $zh.style.display = "none";
-            $zh.classList.remove("active");
-        // default to zh-cn
-        }else{
-            $select.selectedIndex = 0;
-            $zh.style.display = "block";
-            $zh.classList.add("active");
-            $en.style.display = "none";
-            $en.classList.remove("active");
-        }
-        // interop with catalog
-        if ("") generateCatalog(".catalog-body");
-    }
-
-    // handle select change
-    function onLanChange(index){
-        if(index == 0){
-            lang = "zh"
-        }else{
-            lang = "en"
-        }
-        setLang(lang)
-    }
-
-    // init
-    _render();
-</script>
 
 
 
