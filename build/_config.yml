@@ -12,7 +12,7 @@ email: your-email-address-here
 description: ""
 keyword: ""
 url: "" # your host, for absolute URL
-baseurl: "/lin537xisme" # for example, '/blog' if your blog hosted on 'host/blog'
+baseurl: "/blog" # for example, '/blog' if your blog hosted on 'host/blog'
 
 # encoding: utf-8
 
