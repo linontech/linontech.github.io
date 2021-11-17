@@ -106,6 +106,8 @@
                     
                     
                     
+                    
+                    
                 </ul>
             </div>
         </div>
@@ -209,9 +211,9 @@
 
 
 <div class="post-preview">
-    <a href="/blog/%E6%8A%80%E8%A1%93/2021/11/12/ELK-%E7%9B%A3%E6%8E%A7%E4%B8%B2%E6%B5%81%E6%95%B8%E6%93%9A.html">
+    <a href="/blog/%E6%8A%80%E8%A1%93/2021/11/17/%E8%B8%A9%E5%9D%91-Azure-TFS-%E9%83%A8%E7%BD%B2%E4%BD%BF%E7%94%A8%E8%80%85%E8%87%AA%E5%AE%9A%E7%BE%A9%E5%8F%83%E6%95%B8.html">
         <h2 class="post-title">
-            ELK 監控串流 + Spark Structured Streaming
+            踩坑 Azure TFS 部署使用者定義參數
         </h2>
         
         <h3 class="post-subtitle">
@@ -220,9 +222,9 @@
         
     </a>
     <p class="post-meta">
-        November 12, 2021 &nbsp;|&nbsp;
+        November 17, 2021 &nbsp;|&nbsp;
         约3分钟读完
-        大约836个字
+        大约1044个字
 
         &nbsp;|&nbsp;&nbsp;
         <a href="/blog/categories.html?categories=技術" title="技術">技術&nbsp;</a>
@@ -236,28 +238,60 @@
     </p>
     <div class="post-content-preview">
         
-        <p>之前的做法是，串流數據ETL的結果，寫到Kafka的同時也寫一份到ElasticSearch，這樣就可以在Kibana上面分析串流ETL的效能，但是這樣需要記錄串流數據每一段
-的時間戳，才能分析各段即時ETL的耗時。如果系統比較複雜，ETL數據串到最後會有一坨喇股的時間戳，只為了後面的Kibana分析使用。對中間的串流ETL而言都會是多餘的
-資源消耗。</p>
+        <h3 id="前情提要">前情提要</h3>
 
-<p>目前讓 logstash 收集各段串流ETL的Kafka topic中的資料，並記錄 CreateTime。再根據event_id在 logstash 進行聚合，
-就能計算出平均一筆event，整個串流ETL pipeline所需要的時間。上述是比較細的計算方式，如果只需要簡單的知道每段串流ETL
-的效能，也可以只計算TPS(Transaction per seconds)，就是這段pipeline平均每秒處理了多少資料。</p>
+<p>最近在角落研究微軟 Azure TFS 的 Release Pipeline 的參數傳遞的部分，Windows 的 Server 的 Release Pipeline 要讀取部署
+Pipeline 上設置的環境變數，到 Linux Server 上面的 shell 做使用。每次覺得 code review 都一切 Look Very Good to
+me 的時候，總是會有未知的彩蛋。在 Azure TFS 上設置的環境參數名稱，原本小寫的部分被轉成了大寫，不止如此參數名稱如果原本有帶 dot
+的，也轉換成了底線。</p>
 
-<p>TPS不能真的反應即時串流ETL延遲的情況，也可以理解為一個batch所需要的最小的時間，會是這個即時ETL的最低延遲。
-如下說明，如果ETL串流的 Input Rate和Process Rate能保持差不多的速度，表示串流的處理資源足夠。但是，還是會有
-因為一個 batch處理了太多的數據，而發生高延遲。解決的方法，是在縮小每個batch的大小和增加更多平行計算的資源，比如更多的
-之間 Kafka partitions 或者更多的 Spark CPU core，之間找到平衡點。</p>
+<h3 id="tfs-release-pipeline-參數名稱命名規範">TFS Release Pipeline 參數名稱命名規範</h3>
 
-<ul>
-  <li>Spark Structured Streaming</li>
-</ul>
+<p>因為需要把Azure TFS上設置的環境變量，直接帶到 Linux Server 上使用，不想一個一個參數的傳進 shell 檔裡面，參數多的時候真的會覺得
+懷疑人生，所以稍微看了一下 Azure Pipeline 的使用者定義參數使用方式。
+如果你也想讀英文，這是參考的<a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&amp;tabs=yaml%2Cbatch&amp;WT.mc_id=DT-MVP-4015686#variable-naming-restrictions">連結</a>。</p>
 
-<p>Spark Structured Streaming 是一個分佈式即時串流數據處理框架。他使用了 Spark 的 SQL/DataSet/DataFrame API，
-開發的人可以輕鬆的實現即時數據的聚合操作和 join 操作，還有窗口化 windowing。</p>
+<ol>
+  <li>Macro Syntax Variables</li>
+</ol>
 
-<p>此外 Spark 3.0 開始，Structured Streaming 提供了一個監控串流ETL的監控 UI。可以清楚地看到，ETL串流的 Input Rate，
-Process Rate 等。</p>
+<pre><code class="language-angular2html"># 注意這邊是括號不是大括號
+echo $(my_variable)
+</code></pre>
+
+<ol>
+  <li>Template Expression Variables</li>
+</ol>
+
+<p>範本參數，顧名思義會在編譯的時候就把參數做替換。一般來說，這個參數表達方式，會用在複用部署 YAML 檔的某一部分，並傳遞進去相應的參數。
+當發現無法替換的參數，會直接替換成空字串。</p>
+
+<ol>
+  <li>Runtime Expression Variables</li>
+</ol>
+
+<p>一般來說，這個參數表達方式，會用在條件式判斷去執行不同 Task 的時候。另外，它也只會在作為值的時候被使用，無法作為key值做使用。</p>
+
+<pre><code class="language-angular2html">$[variables.key] : value # invalid
+key : $[variables.value] # valid
+key : $[variables.value]foo # invalid
+</code></pre>
+
+<h3 id="release-pipeline-inline-script-命令行指令的保護措施">Release Pipeline inline script 命令行指令的保護措施</h3>
+
+<p>當執行某些重要的指令，比如，登入會使用到的帳號密碼作為參數是不可缺少的部分，如果其中作為密碼的參數不見，很有可能會導致整個 Server 上因為 key 錯
+密碼而發生災難。又或者是，在部署期間需要把某個路徑中的文件刪除。如果這個路徑使用環境參數拼出來的話，就會需要特別注意了。一個處理方式是，利用下面的 linux 條件
+判斷式，排除某些重要參數為空值的情況。</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="k">if</span> <span class="o">[</span> <span class="nt">-z</span> <span class="k">${</span><span class="nv">password</span><span class="p">+x</span><span class="k">}</span> <span class="o">]</span> <span class="o">||</span> <span class="o">[</span> <span class="nt">-z</span> <span class="k">${</span><span class="nv">account</span><span class="p">+x</span><span class="k">}</span> <span class="o">]</span> <span class="o">||</span> <span class="o">[</span> <span class="nt">-z</span> <span class="k">${</span><span class="nv">path</span><span class="p">/to/your/app+x</span><span class="k">}</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+  </span><span class="nb">echo</span> <span class="s2">"Parameter Error!"</span><span class="p">;</span>
+  <span class="nb">exit</span><span class="p">;</span>
+<span class="k">fi</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
 
         
     </div>
@@ -306,32 +340,11 @@ Process Rate 等。</p>
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <!-- SNS Link -->
-                
-
-
-<ul class="list-inline text-center">
-
-
-  
-  
-  
-  
-  
-  
-  
-</ul>
-
                 <p class="copyright text-muted">
                     Copyright &copy;  2021
                     <span id="htmer_time" style=""></span>
                     <br>
-                    Powered by Huxpro, Jekyll, Maintained By <a href="">lin537x</a> |
-                    <iframe
-                        style="margin-left: 2px; margin-bottom:-5px;"
-                        frameborder="0" scrolling="0" width="100px" height="20px"
-                        src="https://ghbtns.com/github-btn.html?user=lin537x&repo=lin537x.github.io&type=star&count=true" >
-                    </iframe>
+                    Powered by Huxpro, Jekyll, Maintained By <a href="https://github.com/lin537x">lin537x</a>
                 </p>
             </div>
         </div>

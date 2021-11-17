@@ -106,6 +106,8 @@
                     
                     
                     
+                    
+                    
                 </ul>
             </div>
         </div>
@@ -209,9 +211,9 @@
 
 
 <div class="post-preview">
-    <a href="/blog/%E7%94%9F%E6%B4%BB/2021/11/09/%E9%97%9C%E6%96%BC%E6%8F%90%E5%8D%87%E8%A6%BA%E5%AF%9F%E5%8A%9B-%E7%9C%9F%E6%AD%A3%E6%8E%A5%E7%B4%8D%E8%87%AA%E6%88%91.html">
+    <a href="/blog/%E6%8A%80%E8%A1%93/2021/11/12/ELK-%E7%9B%A3%E6%8E%A7%E4%B8%B2%E6%B5%81%E6%95%B8%E6%93%9A.html">
         <h2 class="post-title">
-            關於提升覺察力，真正接納自我
+            ELK 監控串流 + Spark Structured Streaming
         </h2>
         
         <h3 class="post-subtitle">
@@ -220,12 +222,12 @@
         
     </a>
     <p class="post-meta">
-        November 9, 2021 &nbsp;|&nbsp;
-        约2分钟读完
-        大约656个字
+        November 12, 2021 &nbsp;|&nbsp;
+        约3分钟读完
+        大约836个字
 
         &nbsp;|&nbsp;&nbsp;
-        <a href="/blog/categories.html?categories=生活" title="生活">生活&nbsp;</a>
+        <a href="/blog/categories.html?categories=技術" title="技術">技術&nbsp;</a>
         
         <!--        -->
         <!--            &nbsp;|&nbsp;-->
@@ -236,23 +238,28 @@
     </p>
     <div class="post-content-preview">
         
-        <p>好吧，簡單來說上面標題的更白話一點的意思應該是，”慢慢卸下面具，放下想象中的模樣，開始與真正的自己連結。”</p>
+        <p>之前的做法是，串流數據ETL的結果，寫到Kafka的同時也寫一份到ElasticSearch，這樣就可以在Kibana上面分析串流ETL的效能，但是這樣需要記錄串流數據每一段
+的時間戳，才能分析各段即時ETL的耗時。如果系統比較複雜，ETL數據串到最後會有一坨喇股的時間戳，只為了後面的Kibana分析使用。對中間的串流ETL而言都會是多餘的
+資源消耗。</p>
 
-<p>進入職場、大人的世界之後，每天總是會為了迎合他人，而假裝地嘴角上揚，原本你自在的心還會一次次的提醒自己，”你好像已經很久沒有發自內心的笑了”。
-直到假裝和表面變成反射動作，你開始對自己不包容、不開放，開始自我批判，下意識地與同儕比較和競爭，怕所有人背著你學習，怕自己不夠好、不夠厲害，甚至害怕
-自己沒有別人想像中的那般厲害，於是不自信的思維從心底油然而生，最後誰也無法看清你是誰。接納自我：</p>
+<p>目前讓 logstash 收集各段串流ETL的Kafka topic中的資料，並記錄 CreateTime。再根據event_id在 logstash 進行聚合，
+就能計算出平均一筆event，整個串流ETL pipeline所需要的時間。上述是比較細的計算方式，如果只需要簡單的知道每段串流ETL
+的效能，也可以只計算TPS(Transaction per seconds)，就是這段pipeline平均每秒處理了多少資料。</p>
 
-<p>第一步，停止道歉和自我批判。最近工作上和同事聊到想在工作上”做自己”，而不是工作中總是在在”服務他人”，當然如果你從事的是服務業好像就是另當別論。
-盤點下來，”做自己”的例子比如，大聲區分工作權責，或者大聲說自己真的想做什麼，而不是不帶感情的完成一件待辦事項。當然這和你富有熱情、熱忱地，想要幫忙解決問題的
-情況是完全不同的。熱忱如果不是出自真正接納自己恐會是淪為三分鐘熱度，又或者只是你的其中一個面具。</p>
+<p>TPS不能真的反應即時串流ETL延遲的情況，也可以理解為一個batch所需要的最小的時間，會是這個即時ETL的最低延遲。
+如下說明，如果ETL串流的 Input Rate和Process Rate能保持差不多的速度，表示串流的處理資源足夠。但是，還是會有
+因為一個 batch處理了太多的數據，而發生高延遲。解決的方法，是在縮小每個batch的大小和增加更多平行計算的資源，比如更多的
+之間 Kafka partitions 或者更多的 Spark CPU core，之間找到平衡點。</p>
 
-<p>第二步，回想自信時刻。自信和自負的區別，打個比方來說就是，你抬起的是下巴還是鼻子，就是你能否接受來自他人的意見或批評。
-避免自己在嘗試做自己的時候，迷失方向，看不到其他人，而逃避了其他人，最後在自我逃避。</p>
+<ul>
+  <li>Spark Structured Streaming</li>
+</ul>
 
-<p>第三步，採取行動。找到自己最自在的那個時候，從那開始跨出舒適圈，讓自己去挑戰或爭取心中渴望已久的事物，並將實踐的過程與理想的成果形象化。
-清楚地找到自己的目標。</p>
+<p>Spark Structured Streaming 是一個分佈式即時串流數據處理框架。他使用了 Spark 的 SQL/DataSet/DataFrame API，
+開發的人可以輕鬆的實現即時數據的聚合操作和 join 操作，還有窗口化 windowing。</p>
 
-<p>覺察力，讓你更了解自己，也更容易接納他人，更能夠與他人連結。</p>
+<p>此外 Spark 3.0 開始，Structured Streaming 提供了一個監控串流ETL的監控 UI。可以清楚地看到，ETL串流的 Input Rate，
+Process Rate 等。</p>
 
         
     </div>
@@ -305,32 +312,11 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <!-- SNS Link -->
-                
-
-
-<ul class="list-inline text-center">
-
-
-  
-  
-  
-  
-  
-  
-  
-</ul>
-
                 <p class="copyright text-muted">
                     Copyright &copy;  2021
                     <span id="htmer_time" style=""></span>
                     <br>
-                    Powered by Huxpro, Jekyll, Maintained By <a href="">lin537x</a> |
-                    <iframe
-                        style="margin-left: 2px; margin-bottom:-5px;"
-                        frameborder="0" scrolling="0" width="100px" height="20px"
-                        src="https://ghbtns.com/github-btn.html?user=lin537x&repo=lin537x.github.io&type=star&count=true" >
-                    </iframe>
+                    Powered by Huxpro, Jekyll, Maintained By <a href="https://github.com/lin537x">lin537x</a>
                 </p>
             </div>
         </div>
