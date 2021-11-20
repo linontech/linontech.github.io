@@ -9,7 +9,7 @@ const baseWebpackConfig = require('./webpack.base.conf')
 const devWebpackConfig = merge(baseWebpackConfig, {
     mode: 'development',
     output: {
-        path: path.resolve(__dirname, '../src/'), // to store all output files (absolute) at /dist/
+        path: path.resolve(__dirname, 'src/'), // to store all output files (absolute) at /dist/
         publicPath: '', //  where your upload bundle files
         filename: '[name].[chunkhash].js'
     },
@@ -26,7 +26,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
             cacheGroups: {
                 vendor: {
                     chunks: 'initial',
-                    test: path.resolve(__dirname, '../node_modules'),
+                    test: path.resolve(__dirname, 'node_modules'),
                     name: 'vendor',
                     enforce: true
                 }

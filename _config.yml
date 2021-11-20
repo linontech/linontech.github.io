@@ -1,8 +1,8 @@
 
 # Build settings
-source: ../src
-destination: ../docs
-#destination: ../dist
+source: src
+destination: docs
+#destination: dist
 
 # Site settings
 title: ""
