@@ -11,16 +11,16 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Offline - ">
+    <meta property="og:title" content="About - ">
     
     <meta property="og:type" content="website">
-    <meta property="og:description" content="阅读过的页面可以在离线时访问哦 ;)">
+    <meta property="og:description" content="">
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/offline.html">
+    <meta property="og:url" content="/about/">
     <meta property="og:site_name" content="">
 
-    <title>Offline - </title>
+    <title>About - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -29,7 +29,7 @@
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/offline.html">
+    <link rel="canonical" href="/about/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -179,15 +179,15 @@
 
 
 
-<header class="intro-header" style="background-image: url('/img/404-bg.jpg')">
+<header class="intro-header" style="background-image: url('/img/concretewall.jpg')">
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         
-        <div class="site-heading">
+        <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">Offline</h3>
-          <span class="subheading">阅读过的页面可以在离线时访问哦 ;)</span>
+          <h3 id="intro-header-item">About</h3>
+          <span class="subheading"></span>
           <span class="meta"></span>
         </div>
       </div>
@@ -197,9 +197,74 @@
 
 
 
-<script>
-	document.body.classList.add('page-fullscreen');
-</script>
+<!-- Main Content -->
+<div class="container">
+	<div class="row">
+    
+    <!-- NO SIDEBAR -->
+    <!-- PostList Container -->
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
+<!--            <div id="app">-->
+                  <!-- Language Selector -->
+  <select class="sel-lang" onchange="onLanChange(this.options[this.options.selectedIndex].value)">
+      <option value="0" selected> 中文 | Chinese </option>
+      <option value="1"> 英文 | English </option>
+  </select>
+
+
+<!-- Chinese Version -->
+<div class="zh post-container">
+    
+    
+<p>這是一個使用 Jekyll + Vue.js 的框架，利用 vue.js 中的 b-pagination 實現了翻頁的功能。</p>
+
+</div>
+
+<!-- English Version -->
+<div class="en post-container">
+    
+    
+<p>This is a blog mix Jekyll and Vue.js. components/Pagination.vue implements pagination feature by b-pagination plugin.</p>
+
+</div>
+
+
+<div id="disqus_thread"></div>
+
+    <script>
+        /**
+         *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+         *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+        /*
+        var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        };
+        */
+        var disqus_shortname = "williams-note";
+        (function() { // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            s.src = 'https://' + 'williams-note' + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+
+
+<!--            </div>-->
+        </div>
+        <!-- Sidebar Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            sidebar-container">
+
+        </div>
+    
+	</div>
+</div>
+
+
 
 
     <!-- Footer -->
@@ -291,6 +356,58 @@
 
 
 <!-- Multi-Lingual -->
+
+<!-- Handle Language Change -->
+<script type="text/javascript">
+    // get nodes
+    var $zh = document.querySelector(".zh");
+    var $en = document.querySelector(".en");
+    var $select = document.querySelector("select");
+
+    // Changes at v1.8.1: include lang flag as a url query. This interop well with catalog hash anchors.
+    function getLang() { return new URLSearchParams(document.location.search).get("lang") }
+
+    function setLang(newLang) {
+        var params = new URLSearchParams(document.location.search)
+        params.set("lang", newLang)
+        document.location.search = params.toString()  // refresh.
+    }
+
+    // handle render
+    function _render(){
+        var lang = getLang()
+        // en
+        if(lang == "en"){
+            $select.selectedIndex = 1;
+            $en.style.display = "block";
+            $en.classList.add("active");
+            $zh.style.display = "none";
+            $zh.classList.remove("active");
+        // default to zh-cn
+        }else{
+            $select.selectedIndex = 0;
+            $zh.style.display = "block";
+            $zh.classList.add("active");
+            $en.style.display = "none";
+            $en.classList.remove("active");
+        }
+        // interop with catalog
+        if ("") generateCatalog(".catalog-body");
+    }
+
+    // handle select change
+    function onLanChange(index){
+        if(index == 0){
+            lang = "zh"
+        }else{
+            lang = "en"
+        }
+        setLang(lang)
+    }
+
+    // init
+    _render();
+</script>
 
 
 
