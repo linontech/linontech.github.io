@@ -1,6 +1,6 @@
 
 # Build settings
-source: src
+# source: src
 destination: docs
 #destination: dist
 
@@ -35,7 +35,7 @@ highlighter: rouge
 paginate: 1
 paginate_path: "/article/page:num/"
 anchorjs: true # if you want to customize anchor. check out line:181 of `post.html`
-exclude: ["components"]
+exclude: ["components", "history_posts"]
 #exclude: ["less","node_modules","Gruntfile.js","package.json","README.md","README.zh.md", "src"]
 
 # If you have timezone issue (e.g. #68) in China, uncomment to use this:

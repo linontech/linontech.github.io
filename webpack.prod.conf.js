@@ -9,7 +9,7 @@ const baseWebpackConfig = require('./webpack.base.conf')
 const devWebpackConfig = merge(baseWebpackConfig, {
     mode: 'production',
     output: {
-        path: path.resolve(__dirname, './src/'), // to store all output files (absolute) at /dist/
+        path: path.resolve(__dirname, './'), // to store all output files (absolute) at /dist/
         publicPath: '', //  where your upload bundle files
         filename: '[name].[chunkhash].js'
     },
@@ -17,7 +17,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         // new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             filename: './_includes/scripts.html',
-            template: './src/_includes/_scripts.html'
+            template: './_includes/_scripts.html'
         }),
         new VueLoaderPlugin()
     ],
