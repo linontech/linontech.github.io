@@ -9,8 +9,8 @@ const baseWebpackConfig = require('./webpack.base.conf')
 const devWebpackConfig = merge(baseWebpackConfig, {
     mode: 'production',
     output: {
-        path: path.resolve(__dirname, './'), // to store all output files (absolute) at /dist/
-        publicPath: '', //  where your upload bundle files
+        path: path.resolve(__dirname, ''), // to store all output files (absolute) at /dist/
+        publicPath: '/', //  where your upload bundle files
         filename: '[name].[chunkhash].js'
     },
     plugins: [
