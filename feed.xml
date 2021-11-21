@@ -5,8 +5,8 @@
     <description></description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 20 Nov 2021 15:13:22 +0000</pubDate>
-    <lastBuildDate>Sat, 20 Nov 2021 15:13:22 +0000</lastBuildDate>
+    <pubDate>Sun, 21 Nov 2021 03:26:01 +0000</pubDate>
+    <lastBuildDate>Sun, 21 Nov 2021 03:26:01 +0000</lastBuildDate>
     <generator>Jekyll v4.1.1</generator>
     
       <item>
@@ -149,6 +149,37 @@ Process Rate 等。&lt;/p&gt;
         
         
         <category>生活</category>
+        
+      </item>
+    
+      <item>
+        <title>Resume</title>
+        <description>&lt;p&gt;擺脫，想的比做的多。實踐力不足，求生慾低。生活感。&lt;/p&gt;
+
+&lt;p&gt;林子暐  資料工程師&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;熟悉 Hadoop, Cloudera Distributed Hadoop, Spark,&lt;/li&gt;
+  &lt;li&gt;熟悉 Python, Java&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;客戶歷程即時資料流開發及效能監控&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Spark Structured Streaming串接前端kafka資料&lt;/li&gt;
+  &lt;li&gt;Kafka Connect 串接 Oracle資料&lt;/li&gt;
+  &lt;li&gt;ELK監控機制開發&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Spark ETL程式開發&lt;/p&gt;
+
+&lt;p&gt;Side Project&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;AWS 591 news crawler&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Sat, 06 Nov 2021 00:00:00 +0000</pubDate>
+        <link>/2021/11/06/First-Post.html</link>
+        <guid isPermaLink="true">/2021/11/06/First-Post.html</guid>
+        
         
       </item>
     

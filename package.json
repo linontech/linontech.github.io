@@ -1,0 +1,72 @@
+{
+  "name": "william-blog",
+  "title": "Williiam Blog",
+  "author": "William",
+  "version": "1.8.2",
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com//.github.io.git"
+  },
+  "bugs": {
+    "url": "https://github.com//.github.io/issues"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
+    "babel-loader": "^8.0.6",
+    "bootstrap-vue": "^2.3.0",
+    "browser-sync": "^2.26.13",
+    "clean-webpack-plugin": "^3.0.0",
+    "cross-env": "^6.0.3",
+    "css-loader": "^3.4.2",
+    "eslint": "^6.3.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.2.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-vue": "^5.2.3",
+    "grunt": "^1.0.4",
+    "grunt-banner": "~0.2.3",
+    "grunt-contrib-less": "^2.0.0",
+    "grunt-contrib-uglify": "^4.0.1",
+    "grunt-contrib-watch": "^1.1.0",
+    "gulp-yuicompressor": "0.0.3",
+    "html-webpack-plugin": "^3.2.0",
+    "jquery": "^3.5.1",
+    "node-sass": "^4.14.1",
+    "sass-loader": "^8.0.2",
+    "style-loader": "^1.0.0",
+    "vue-loader": "^15.8.3",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.11",
+    "vuex": "^3.1.2",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-merge": "^4.2.2"
+  },
+  "scripts": {
+    "jekyll-build": "jekyll build --trace",
+    "jekyll-serve": "jekyll serve -t -w -l --host 0.0.0.0 --port 4000",
+    "jekyll-serve-drafts": "jekyll serve -t -w -l -D --host 0.0.0.0 --port 4000",
+    "gh-draft-build": "grunt &&  npm run prod && npm run jekyll-serve-drafts",
+    "gh-build-dev": "grunt && npm run dev && npm run jekyll-serve-drafts",
+    "gh-build-prod": "grunt && npm run prod && npm run jekyll-serve",
+    "gh-deploy-prod": "grunt && npm run prod && npm run jekyll-build",
+    "dev": "cross-env NODE_ENV=development webpack --config webpack.dev.conf.js",
+    "prod": "cross-env NODE_ENV=production webpack --config webpack.prod.conf.js",
+    "grunt": "grunt watch",
+    "boil": "git push boilerplate boilerplate:master",
+    "push": "git push origin master --tag",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "watch": "cross-env NODE_ENV=development webpack --watch"
+  },
+  "description": "",
+  "main": "Gruntfil.js",
+  "dependencies": {
+    "vue": "^2.6.11"
+  },
+  "license": "ISC"
+}

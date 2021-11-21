@@ -108,6 +108,8 @@
                     
                     
                     
+                    
+                    
                 </ul>
             </div>
         </div>
@@ -211,9 +213,9 @@
 
 
 <div class="post-preview">
-    <a href="/%E6%8A%80%E8%A1%93/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84.html">
+    <a href="/2021/11/06/First-Post.html">
         <h2 class="post-title">
-            ELK 小白記錄
+            Resume
         </h2>
         
         <h3 class="post-subtitle">
@@ -223,11 +225,9 @@
     </a>
     <p class="post-meta">
         November 6, 2021 &nbsp;|&nbsp;
-        约3分钟读完
-        大约774个字
+        约1分钟读完
+        大约209个字
 
-        &nbsp;|&nbsp;&nbsp;
-        <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
         
         <!--        -->
         <!--            &nbsp;|&nbsp;-->
@@ -238,29 +238,27 @@
     </p>
     <div class="post-content-preview">
         
-        <p>ELK是ElasticSearch， Logstash， Kibana三個名詞合在一起的縮寫。 通常用於日誌管理，從集群中的多個service收集日誌，避免開發者直接登入server，
-使得生產環境的安全和查找問題的便利性。</p>
+        <p>擺脫，想的比做的多。實踐力不足，求生慾低。生活感。</p>
 
-<p>其中，ElasticSearch提供日誌保存，檢索和分析的功能，基於 Apache 
-Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除了將一些常用的反序列數據的功能變得很好上手，如常見的json，csv。更強大的是， 
-grok， dissect 等插件，將非結構化的字符串轉換成結構化的數據， 當然也可以添加或刪除欄位 add_field， 
-remove_field。Kibana 則提供資料視覺化的dashboard，直觀的 Kibana Query Language，讓使用者可以更快知道資料的全貌。</p>
+<p>林子暐  資料工程師</p>
+<ol>
+  <li>熟悉 Hadoop, Cloudera Distributed Hadoop, Spark,</li>
+  <li>熟悉 Python, Java</li>
+</ol>
 
-<ul>
-  <li>Beat and Logstash</li>
-</ul>
+<p>客戶歷程即時資料流開發及效能監控</p>
+<ol>
+  <li>Spark Structured Streaming串接前端kafka資料</li>
+  <li>Kafka Connect 串接 Oracle資料</li>
+  <li>ELK監控機制開發</li>
+</ol>
 
-<p>Beats 是一個小型的日誌發送程序的集合，大家最常使用的就是 Filebeat，它能夠將日誌發送到 ELK 集群。除此之外，Beat家族還包括 Packetbeat, 
-Metricbeat，Heartbeat，Functionbeat … 等。一般在將日誌文件導入到ElasticSearch進行檢索時，會同時使用 
-Filebeat和Logstash，Filebeat負責將服務器上的日誌發送到ELK集群，Logstash則負責將日誌數據轉換成我們需要的格式。</p>
+<p>Spark ETL程式開發</p>
 
-<ul>
-  <li>ElasticSearch</li>
-</ul>
-
-<p>ElasticSearch 和 MongoDB一樣都是NoSQL的資料庫，所有的資料都以JSON格式讀取。不同於傳統的關係型資料庫，文檔和文檔之間的關係會使用 
-join來串接，ElasticSearch 通常會用使用sub document的方式。 此外，ElasticSearch 對所有欄位都可以建立索引，並且可以根據不同的用途建立索引。</p>
-
+<p>Side Project</p>
+<ol>
+  <li>AWS 591 news crawler</li>
+</ol>
 
         
     </div>
@@ -283,6 +281,10 @@ join來串接，ElasticSearch 通常會用使用sub document的方式。 此外�
         <a href="/article/page3/">&larr; Newer Posts</a>
     </li>
     
+    
+    <li class="next">
+        <a href="/article/page5/">Older Posts &rarr;</a>
+    </li>
     
 </ul>
 
@@ -400,7 +402,7 @@ join來串接，ElasticSearch 通常會用使用sub document的方式。 此外�
     <img src="/img/icon_wechat.png" width="0" height="0" />
     <!-- Migrate from head to bottom, no longer block render and still work -->
 
-    <script type="text/javascript" src="vendor.cd1366689cf063ec5d17.js"></script><script type="text/javascript" src="main.ac464bfbb314093e016f.js"></script>
+    <script type="text/javascript" src="vendor.cd1366689cf063ec5d17.js"></script><script type="text/javascript" src="main.4fff5130e9b80d3f1f2f.js"></script>
 
 </body>
 
