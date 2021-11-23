@@ -11,25 +11,25 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="ELK 小白記錄 - ">
+    <meta property="og:title" content="kafka 小白二三事（一） - ">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="ELK是ElasticSearch， Logstash， Kibana三個名詞合在一起的縮寫。 通常用於日誌管理，從集群中的多個service收集日誌，避免開發者直接登入server，
-使得生產環境的安全和查找問題的便利性。
+    <meta property="og:description" content="Kafka，分佈式、高吞吐量、高擴展性消息隊列系統。是一個被廣為使用的消息隊列中間件。常用來異步處理請求、
+流量削峰、日誌處理、解耦業務處理過程。。等等。
 
-其中，ElasticSearch提供日誌保存，檢索和分析的功能，基於 Apache 
-Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除了將...">
+生產消息 Producer，消費者 Consumer, Consumer Group，兩端業務邏輯被解耦一個負責生產數據，另一個就是單純
+把數據接收下來，並且由 Consumer Group去記錄對應某個 Topic 目前信息接收到第幾...">
     
-    <meta property="article:published_time" content="2021-11-06T00:00:00Z">
+    <meta property="article:published_time" content="2021-11-23T00:00:00Z">
     
     
     
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84/">
+    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/">
     <meta property="og:site_name" content="">
 
-    <title>ELK 小白記錄 - </title>
+    <title>kafka 小白二三事（一） - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -38,7 +38,7 @@ Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除�
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84/">
+    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -199,9 +199,9 @@ Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除�
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">ELK 小白記錄</h3>
+          <h3 id="intro-header-item">kafka 小白二三事（一）</h3>
           <span class="subheading"></span>
-          <span class="meta">November 6, 2021</span>
+          <span class="meta">November 23, 2021</span>
         </div>
       </div>
     </div>
@@ -225,28 +225,31 @@ Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除�
                 
 
                 <div id="app">
-                    <p>ELK是ElasticSearch， Logstash， Kibana三個名詞合在一起的縮寫。 通常用於日誌管理，從集群中的多個service收集日誌，避免開發者直接登入server，
-使得生產環境的安全和查找問題的便利性。</p>
+                    <p>Kafka，分佈式、高吞吐量、高擴展性消息隊列系統。是一個被廣為使用的消息隊列中間件。常用來異步處理請求、
+流量削峰、日誌處理、解耦業務處理過程。。等等。</p>
 
-<p>其中，ElasticSearch提供日誌保存，檢索和分析的功能，基於 Apache 
-Lucene 真的就是未名覺厲。Logstash收集log並做一些前處理，除了將一些常用的反序列數據的功能變得很好上手，如常見的json，csv。更強大的是， 
-grok， dissect 等插件，將非結構化的字符串轉換成結構化的數據， 當然也可以添加或刪除欄位 add_field， 
-remove_field。Kibana 則提供資料視覺化的dashboard，直觀的 Kibana Query Language，讓使用者可以更快知道資料的全貌。</p>
-
-<ul>
-  <li>Beat and Logstash</li>
-</ul>
-
-<p>Beats 是一個小型的日誌發送程序的集合，大家最常使用的就是 Filebeat，它能夠將日誌發送到 ELK 集群。除此之外，Beat家族還包括 Packetbeat, 
-Metricbeat，Heartbeat，Functionbeat … 等。一般在將日誌文件導入到ElasticSearch進行檢索時，會同時使用 
-Filebeat和Logstash，Filebeat負責將服務器上的日誌發送到ELK集群，Logstash則負責將日誌數據轉換成我們需要的格式。</p>
+<p>生產消息 Producer，消費者 Consumer, Consumer Group，兩端業務邏輯被解耦一個負責生產數據，另一個就是單純
+把數據接收下來，並且由 Consumer Group去記錄對應某個 Topic 目前信息接收到第幾條了 (offset)。這些生產者和
+消費者彼此之間除了約定 Schema 之外沒有直接的關聯，生產者和消費者的吃飯的傢伙事活動都由 kafka broker 負責。
+可以說一個 kafka broker 就是一個 kafka ，多個 kafka broker 就會組成一個 kafka 集群。</p>
 
 <ul>
-  <li>ElasticSearch</li>
+  <li>
+    <p>Topic
+區分不同消息的放置位置和，好比 table name。</p>
+  </li>
+  <li>
+    <p>Partition
+分區，這裡的概念基本上和 ElasticSearch 上的分片概念是一樣的。都是想把數據合理的放在不同的服務區的分區上面，以達到
+負載均衡。特別要注意的是，每個分區存儲的數據都是有序的，但是不同分區間的數據不保證有序性。若有保證有序，
+那就只能設置一個分區。</p>
+  </li>
+  <li>
+    <p>Replica
+副本，kafka 為了防止服務器壞掉採取的措施。需要注意的是不同分區的備份存放的是不同部分的數據，也就是如果沒有備份整個
+kafka 集群就無法備份 kafka topic 的所有的分區。</p>
+  </li>
 </ul>
-
-<p>ElasticSearch 和 MongoDB一樣都是NoSQL的資料庫，所有的資料都以JSON格式讀取。不同於傳統的關係型資料庫，文檔和文檔之間的關係會使用 
-join來串接，ElasticSearch 通常會用使用sub document的方式。 此外，ElasticSearch 對所有欄位都可以建立索引，並且可以根據不同的用途建立索引。</p>
 
 
                 </div>
@@ -254,14 +257,14 @@ join來串接，ElasticSearch 通常會用使用sub document的方式。 此外�
                 <hr style="visibility: hidden;">
                 <ul class="pager">
                     
-                    
-                    <li class="next">
-                        <a href="/%E7%94%9F%E6%B4%BB/2021/11/09/%E9%97%9C%E6%96%BC%E6%8F%90%E5%8D%87%E8%A6%BA%E5%AF%9F%E5%8A%9B-%E7%9C%9F%E6%AD%A3%E6%8E%A5%E7%B4%8D%E8%87%AA%E6%88%91/" data-toggle="tooltip" data-placement="top" title="關於提升覺察力，真正接納自我">
-                        Next<br>
-                        <span>關於提升覺察力，真正接納自我</span>
+                    <li class="previous">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/11/17/%E8%B8%A9%E5%9D%91-Azure-TFS-%E9%83%A8%E7%BD%B2%E4%BD%BF%E7%94%A8%E8%80%85%E8%87%AA%E5%AE%9A%E7%BE%A9%E5%8F%83%E6%95%B8/" data-toggle="tooltip" data-placement="top" title="踩坑 Azure TFS 部署使用者定義參數">
+                        Previous<br>
+                        <span>踩坑 Azure TFS 部署使用者定義參數</span>
                         </a>
-                </li>
-                
+                    </li>
+                    
+                    
             </ul>
             <hr style="visibility: hidden;">
 

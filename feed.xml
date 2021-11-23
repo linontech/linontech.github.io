@@ -5,9 +5,47 @@
     <description></description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 21 Nov 2021 04:51:26 +0000</pubDate>
-    <lastBuildDate>Sun, 21 Nov 2021 04:51:26 +0000</lastBuildDate>
+    <pubDate>Tue, 23 Nov 2021 14:02:25 +0000</pubDate>
+    <lastBuildDate>Tue, 23 Nov 2021 14:02:25 +0000</lastBuildDate>
     <generator>Jekyll v4.1.1</generator>
+    
+      <item>
+        <title>kafka 小白二三事（一）</title>
+        <description>&lt;p&gt;Kafka，分佈式、高吞吐量、高擴展性消息隊列系統。是一個被廣為使用的消息隊列中間件。常用來異步處理請求、
+流量削峰、日誌處理、解耦業務處理過程。。等等。&lt;/p&gt;
+
+&lt;p&gt;生產消息 Producer，消費者 Consumer, Consumer Group，兩端業務邏輯被解耦一個負責生產數據，另一個就是單純
+把數據接收下來，並且由 Consumer Group去記錄對應某個 Topic 目前信息接收到第幾條了 (offset)。這些生產者和
+消費者彼此之間除了約定 Schema 之外沒有直接的關聯，生產者和消費者的吃飯的傢伙事活動都由 kafka broker 負責。
+可以說一個 kafka broker 就是一個 kafka ，多個 kafka broker 就會組成一個 kafka 集群。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Topic
+區分不同消息的放置位置和，好比 table name。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Partition
+分區，這裡的概念基本上和 ElasticSearch 上的分片概念是一樣的。都是想把數據合理的放在不同的服務區的分區上面，以達到
+負載均衡。特別要注意的是，每個分區存儲的數據都是有序的，但是不同分區間的數據不保證有序性。若有保證有序，
+那就只能設置一個分區。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Replica
+副本，kafka 為了防止服務器壞掉採取的措施。需要注意的是不同分區的備份存放的是不同部分的數據，也就是如果沒有備份整個
+kafka 集群就無法備份 kafka topic 的所有的分區。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Tue, 23 Nov 2021 00:00:00 +0000</pubDate>
+        <link>/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/</link>
+        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/</guid>
+        
+        
+        <category>技術</category>
+        
+      </item>
     
       <item>
         <title>踩坑 Azure TFS 部署使用者定義參數</title>
@@ -149,37 +187,6 @@ Process Rate 等。&lt;/p&gt;
         
         
         <category>生活</category>
-        
-      </item>
-    
-      <item>
-        <title>Resume</title>
-        <description>&lt;p&gt;擺脫，想的比做的多。實踐力不足，求生慾低。生活感。&lt;/p&gt;
-
-&lt;p&gt;林子暐  資料工程師&lt;/p&gt;
-&lt;ol&gt;
-  &lt;li&gt;熟悉 Hadoop, Cloudera Distributed Hadoop, Spark,&lt;/li&gt;
-  &lt;li&gt;熟悉 Python, Java&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;客戶歷程即時資料流開發及效能監控&lt;/p&gt;
-&lt;ol&gt;
-  &lt;li&gt;Spark Structured Streaming串接前端kafka資料&lt;/li&gt;
-  &lt;li&gt;Kafka Connect 串接 Oracle資料&lt;/li&gt;
-  &lt;li&gt;ELK監控機制開發&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;Spark ETL程式開發&lt;/p&gt;
-
-&lt;p&gt;Side Project&lt;/p&gt;
-&lt;ol&gt;
-  &lt;li&gt;AWS 591 news crawler&lt;/li&gt;
-&lt;/ol&gt;
-</description>
-        <pubDate>Sat, 06 Nov 2021 00:00:00 +0000</pubDate>
-        <link>/2021/11/06/First-Post/</link>
-        <guid isPermaLink="true">/2021/11/06/First-Post/</guid>
-        
         
       </item>
     
