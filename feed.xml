@@ -5,9 +5,44 @@
     <description></description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 23 Nov 2021 14:02:25 +0000</pubDate>
-    <lastBuildDate>Tue, 23 Nov 2021 14:02:25 +0000</lastBuildDate>
+    <pubDate>Tue, 30 Nov 2021 17:02:04 +0000</pubDate>
+    <lastBuildDate>Tue, 30 Nov 2021 17:02:04 +0000</lastBuildDate>
     <generator>Jekyll v4.1.1</generator>
+    
+      <item>
+        <title>kafka 小白二三事（二）</title>
+        <description>&lt;p&gt;通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
+每個 Kafka broker 都會到 ZooKeeper 註冊。&lt;/p&gt;
+
+&lt;p&gt;建置 Kafka 環境和相關設定&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;選擇版本並從官網安裝 https://downloads.apache.org/kafka/&lt;/li&gt;
+  &lt;li&gt;設定 listeners 服務器真正 bind 的地址和 advertised.listeners，曝露給外部的 ip 地址，如果沒有設定的話會
+直接使用 listeners 。他們告訴 Kafka 的客戶端要用什麼協議，哪個 ip 地址去訪問 Kafka 服務。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-angular2html&quot;&gt;e.g. 
+listeners=PLAINTEXT://HOSTNAME:PORT,SSL://HOSTNAME:PORT
+
+listeners=INSIDE://HOSTNAME:PORT,OUTSIDE://HOSTNAME:PORT
+listener.security.protocol.map=INSIDE:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
+
+P.S 
+PLAINTEXT 代表 listeners 會是不需要授權或者加密的。
+SASL_PLAINTEXT 代表需要 SASL 授權，但是不加密
+SASL_SSL 代表 SASL 授權且使用 SSL 加密通訊
+SSL 使用 SSL 加密通訊
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+        <pubDate>Tue, 30 Nov 2021 00:00:00 +0000</pubDate>
+        <link>/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/</link>
+        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/</guid>
+        
+        
+        <category>技術</category>
+        
+      </item>
     
       <item>
         <title>kafka 小白二三事（一）</title>
@@ -19,24 +54,55 @@
 消費者彼此之間除了約定 Schema 之外沒有直接的關聯，生產者和消費者的吃飯的傢伙事活動都由 kafka broker 負責。
 可以說一個 kafka broker 就是一個 kafka ，多個 kafka broker 就會組成一個 kafka 集群。&lt;/p&gt;
 
+&lt;p&gt;名詞解釋&lt;/p&gt;
+
 &lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;Topic
-區分不同消息的放置位置和，好比 table name。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Partition
-分區，這裡的概念基本上和 ElasticSearch 上的分片概念是一樣的。都是想把數據合理的放在不同的服務區的分區上面，以達到
-負載均衡。特別要注意的是，每個分區存儲的數據都是有序的，但是不同分區間的數據不保證有序性。若有保證有序，
-那就只能設置一個分區。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Replica
-副本，kafka 為了防止服務器壞掉採取的措施。需要注意的是不同分區的備份存放的是不同部分的數據，也就是如果沒有備份整個
-kafka 集群就無法備份 kafka topic 的所有的分區。&lt;/p&gt;
-  &lt;/li&gt;
+  &lt;li&gt;Event&lt;/li&gt;
 &lt;/ul&gt;
 
+&lt;p&gt;每個在 Kafka 內保存的資料可以視為一個事件，一個事件包含了鍵 key，值 value，時間戳 timestamp。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Topic&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;區分不同消息的放置位置和，好比 table name。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Partition&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;分區，這裡的概念基本上和 ElasticSearch 上的分片概念是一樣的。都是想把數據合理的放在不同 server 的分區上面，以達到
+負載均衡。特別要注意的是，每個分區存儲的數據都是有序的，但是不同分區間的數據不保證有序性。若有保證有序，
+那就只能設置一個分區。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Replica&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;副本，kafka 為了防止服務器壞掉採取的措施。需要注意的是不同分區的備份存放的是不同部分的數據，也就是如果沒有備份整個
+kafka 集群就無法備份 kafka topic 的所有的分區。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Broker&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Broker 指運行 Kafka 的機器。多個 Broker 就組成 Kafka 集群。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Controller (Leader Broker)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Kafka controller 是一個 Kafka集群的頭腦部分，一個Kafka集群只能有一個 Controller，那個節點就和一般的broker無異，
+只是多負責管理整個集群中所有分區和副本的狀態，比如 broker server 的上線、下線處理，創建/刪除 topic，處理每個 topic 的分區副本分配，以及 leader 
+的選舉，等等。&lt;/p&gt;
+
+&lt;p&gt;提到 Controller 就感覺還會需要科普學習一下下 zookeeper。官方文件寫到，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services. &lt;/code&gt;
+至少在 2021 年之前他對於 kafka都扮演重要的角色。 Kafka 保存了很多重要的元數據在 zookeeper，比如 kafka topic 的基本資訊，分區、副本等資訊，以及 broker 信息和ISR（In-Sync Replicas）等等。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;ISR (In-Sync-replicas)&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         <pubDate>Tue, 23 Nov 2021 00:00:00 +0000</pubDate>
         <link>/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/</link>
@@ -182,11 +248,11 @@ Process Rate 等。&lt;/p&gt;
 &lt;p&gt;覺察力，讓你更了解自己，也更容易接納他人，更能夠與他人連結。&lt;/p&gt;
 </description>
         <pubDate>Tue, 09 Nov 2021 00:00:00 +0000</pubDate>
-        <link>/%E7%94%9F%E6%B4%BB/2021/11/09/%E9%97%9C%E6%96%BC%E6%8F%90%E5%8D%87%E8%A6%BA%E5%AF%9F%E5%8A%9B-%E7%9C%9F%E6%AD%A3%E6%8E%A5%E7%B4%8D%E8%87%AA%E6%88%91/</link>
-        <guid isPermaLink="true">/%E7%94%9F%E6%B4%BB/2021/11/09/%E9%97%9C%E6%96%BC%E6%8F%90%E5%8D%87%E8%A6%BA%E5%AF%9F%E5%8A%9B-%E7%9C%9F%E6%AD%A3%E6%8E%A5%E7%B4%8D%E8%87%AA%E6%88%91/</guid>
+        <link>/%E6%9B%B8%E5%B1%8B/2021/11/09/%E9%97%9C%E6%96%BC%E6%8F%90%E5%8D%87%E8%A6%BA%E5%AF%9F%E5%8A%9B-%E7%9C%9F%E6%AD%A3%E6%8E%A5%E7%B4%8D%E8%87%AA%E6%88%91/</link>
+        <guid isPermaLink="true">/%E6%9B%B8%E5%B1%8B/2021/11/09/%E9%97%9C%E6%96%BC%E6%8F%90%E5%8D%87%E8%A6%BA%E5%AF%9F%E5%8A%9B-%E7%9C%9F%E6%AD%A3%E6%8E%A5%E7%B4%8D%E8%87%AA%E6%88%91/</guid>
         
         
-        <category>生活</category>
+        <category>書屋</category>
         
       </item>
     
