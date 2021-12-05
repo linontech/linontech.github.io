@@ -99,6 +99,8 @@
                     
                     
                     
+                    
+                    
                     <li>
                         <a href="/archive/">ARCHIVE</a>
                     </li>
@@ -215,9 +217,9 @@
 
 
 <div class="post-preview">
-    <a href="/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/">
+    <a href="/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/">
         <h2 class="post-title">
-            kafka 小白二三事（一）
+            kafka 小白二三事（二）
         </h2>
         
         <h3 class="post-subtitle">
@@ -226,9 +228,9 @@
         
     </a>
     <p class="post-meta">
-        November 23, 2021 &nbsp;|&nbsp;
-        约4分钟读完
-        大约1186个字
+        November 30, 2021 &nbsp;|&nbsp;
+        约2分钟读完
+        大约564个字
 
         &nbsp;|&nbsp;&nbsp;
         <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
@@ -242,63 +244,29 @@
     </p>
     <div class="post-content-preview">
         
-        <p>Kafka，分佈式、高吞吐量、高擴展性消息隊列系統。是一個被廣為使用的消息隊列中間件。常用來異步處理請求、
-流量削峰、日誌處理、解耦業務處理過程。。等等。</p>
+        <p>通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
+每個 Kafka broker 都會到 ZooKeeper 註冊。</p>
 
-<p>生產消息 Producer，消費者 Consumer, Consumer Group，兩端業務邏輯被解耦一個負責生產數據，另一個就是單純
-把數據接收下來，並且由 Consumer Group去記錄對應某個 Topic 目前信息接收到第幾條了 (offset)。這些生產者和
-消費者彼此之間除了約定 Schema 之外沒有直接的關聯，生產者和消費者的吃飯的傢伙事活動都由 kafka broker 負責。
-可以說一個 kafka broker 就是一個 kafka ，多個 kafka broker 就會組成一個 kafka 集群。</p>
+<p>建置 Kafka 環境和相關設定</p>
 
-<p>名詞解釋</p>
+<ol>
+  <li>選擇版本並從官網安裝 https://downloads.apache.org/kafka/</li>
+  <li>設定 listeners 服務器真正 bind 的地址和 advertised.listeners，曝露給外部的 ip 地址，如果沒有設定的話會
+直接使用 listeners 。他們告訴 Kafka 的客戶端要用什麼協議，哪個 ip 地址去訪問 Kafka 服務。</li>
+</ol>
 
-<ul>
-  <li>Event</li>
-</ul>
+<pre><code class="language-angular2html">e.g. 
+listeners=PLAINTEXT://HOSTNAME:PORT,SSL://HOSTNAME:PORT
 
-<p>每個在 Kafka 內保存的資料可以視為一個事件，一個事件包含了鍵 key，值 value，時間戳 timestamp。</p>
+listeners=INSIDE://HOSTNAME:PORT,OUTSIDE://HOSTNAME:PORT
+listener.security.protocol.map=INSIDE:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
 
-<ul>
-  <li>Topic</li>
-</ul>
-
-<p>區分不同消息的放置位置和，好比 table name。</p>
-
-<ul>
-  <li>Partition</li>
-</ul>
-
-<p>分區，這裡的概念基本上和 ElasticSearch 上的分片概念是一樣的。都是想把數據合理的放在不同 server 的分區上面，以達到
-負載均衡。特別要注意的是，每個分區存儲的數據都是有序的，但是不同分區間的數據不保證有序性。若有保證有序，
-那就只能設置一個分區。</p>
-
-<ul>
-  <li>Replica</li>
-</ul>
-
-<p>副本，kafka 為了防止服務器壞掉採取的措施。需要注意的是不同分區的備份存放的是不同部分的數據，也就是如果沒有備份整個
-kafka 集群就無法備份 kafka topic 的所有的分區。</p>
-
-<ul>
-  <li>Broker</li>
-</ul>
-
-<p>Broker 指運行 Kafka 的機器。多個 Broker 就組成 Kafka 集群。</p>
-
-<ul>
-  <li>Controller (Leader Broker)</li>
-</ul>
-
-<p>Kafka controller 是一個 Kafka集群的頭腦部分，一個Kafka集群只能有一個 Controller，那個節點就和一般的broker無異，
-只是多負責管理整個集群中所有分區和副本的狀態，比如 broker server 的上線、下線處理，創建/刪除 topic，處理每個 topic 的分區副本分配，以及 leader 
-的選舉，等等。</p>
-
-<p>提到 Controller 就感覺還會需要科普學習一下下 zookeeper。官方文件寫到，<code class="language-plaintext highlighter-rouge">ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services. </code>
-至少在 2021 年之前他對於 kafka都扮演重要的角色。 Kafka 保存了很多重要的元數據在 zookeeper，比如 kafka topic 的基本資訊，分區、副本等資訊，以及 broker 信息和ISR（In-Sync Replicas）等等。</p>
-
-<ul>
-  <li>ISR (In-Sync-replicas)</li>
-</ul>
+P.S 
+PLAINTEXT 代表 listeners 會是不需要授權或者加密的。
+SASL_PLAINTEXT 代表需要 SASL 授權，但是不加密
+SASL_SSL 代表 SASL 授權且使用 SSL 加密通訊
+SSL 使用 SSL 加密通訊
+</code></pre>
 
         
     </div>

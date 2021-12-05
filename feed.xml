@@ -5,9 +5,89 @@
     <description></description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 30 Nov 2021 17:02:04 +0000</pubDate>
-    <lastBuildDate>Tue, 30 Nov 2021 17:02:04 +0000</lastBuildDate>
+    <pubDate>Sun, 05 Dec 2021 14:03:22 +0000</pubDate>
+    <lastBuildDate>Sun, 05 Dec 2021 14:03:22 +0000</lastBuildDate>
     <generator>Jekyll v4.1.1</generator>
+    
+      <item>
+        <title>Spark Application with Kerberos - Intro</title>
+        <description>&lt;p&gt;Kerberos 是三方認證機制，用戶和服務依賴於第三方（Kerberos 伺服器, KDC）來對彼此進行身份驗證。KDC 包含了一個認證
+服務器 (Authenticate Server)，一個票證授權服務器 (Ticket-Granting Server)，以及一個記錄他所知道的 principles
+和它們的 Kerberos 密碼的內建資料庫。&lt;/p&gt;
+
+&lt;h4 id=&quot;principle&quot;&gt;Principle&lt;/h4&gt;
+
+&lt;p&gt;一個 Kerberos principle 長得像，&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;username/fully.qualified.domain.name@YOUR-REALM.COM，按照先後順序，
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;它們分別是 primary，instance(option) 和 realm。primary 代表 Kerberos 的用戶，它可以是一個 unix account
+比如 ap 帳號，也可以是Hadoop服務的Unix帳號，比如 hdfs。instance 是用來區分單個 user 的多個 principle 時使用。
+realm 類似 DNS 中的域，不同的是 DNS 是定義了一組主機名，而 realm 則是定義了一組相關的 principle。&lt;/p&gt;
+
+&lt;h4 id=&quot;keytab&quot;&gt;Keytab&lt;/h4&gt;
+
+&lt;p&gt;Keytab 包含了加密的principle鍵值和對應的 Kerberos principle。 它被用來在驗證一個 Kerberos principle，
+而不用人為得敲打密碼或者明碼保存密碼了。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-angular2html&quot;&gt;A keytab is a file containing pairs of Kerberos principals and encrypted keys (which are derived from the Kerberos password). 
+You can use a keytab file to authenticate to various remote systems using Kerberos without entering a password.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;ticket-granting-ticket-tgt&quot;&gt;Ticket-Granting ticket TGT&lt;/h4&gt;
+&lt;p&gt;由 KDC 中的 Authenticate Server頒發的票證，使用者帶著這個票證可以向 Server 端請求相應的服務。&lt;/p&gt;
+
+&lt;h4 id=&quot;ccache-credential-cache&quot;&gt;ccache (Credential Cache)&lt;/h4&gt;
+&lt;p&gt;Credential Cache 也是 Kerberos 驗證身份的一種方式，它持有Kerberos的憑證，使得使用者所執行任務session還有效時，
+多次驗證服務器，而不用一直請求 KDC 服務器。&lt;/p&gt;
+
+&lt;h3 id=&quot;long-running-spark-application-with-kerberos&quot;&gt;Long-running Spark Application with Kerberos&lt;/h3&gt;
+
+&lt;p&gt;對於一個 Spark Streaming 服務，只要在 spark submit 指令後面加上 –keytab 和 –principle 兩個參數，
+Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation token 和 login ticket。&lt;/p&gt;
+
+&lt;h3 id=&quot;kafka-with-a-kerberos-ticket-cache&quot;&gt;Kafka with a Kerberos Ticket Cache&lt;/h3&gt;
+
+&lt;p&gt;如果你的 Spark Streaming 任務的串流資料來自於 Kafka，別忘了在 worker node 上面，由於 kafka 的 Kerberos 認證 
+也會需要的 keytab 會需要送到 worker node 上面，否則會認證失敗。&lt;/p&gt;
+
+&lt;p&gt;jaas_driver.conf&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;KafkaClient {
+    com.sun.security.auth.module.Krb5LoginModule required
+    useKeyTab=true
+    storeKey=true
+    keyTab=&quot;/path/on/driver/for/keytab&quot;
+    principal=&quot;user@your.customized.realm.name&quot;
+    debug=true
+    serviceName=&quot;kafka&quot;;
+};
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Reference&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;https://spark.apache.org/docs/2.4.6/running-on-yarn.html#yarn-specific-kerberos-configuration&quot;&gt;Running Spark on YARN&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Sat, 04 Dec 2021 00:00:00 +0000</pubDate>
+        <link>/%E6%8A%80%E8%A1%93/2021/12/04/Spark-application-with-Kerberos/</link>
+        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/12/04/Spark-application-with-Kerberos/</guid>
+        
+        
+        <category>技術</category>
+        
+      </item>
     
       <item>
         <title>kafka 小白二三事（二）</title>
