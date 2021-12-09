@@ -11,16 +11,27 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="HOME - ">
+    <meta property="og:title" content="記一次HDFS_DELEGATION_TOKEN過期的問題 - ">
     
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="TL;DR
+
+HDFS-9276, SPARK-11182
+
+最近開發的Spark Streaming串流程式每七天就會報下面這串 Exception，起初也不以為意覺得是Hadoop叢集的問題，
+後來觀察日誌才發現它是每七天就會出現一次，讓程式 crash 掉的問題。可以理解為，每七天Spark的HDFS_DELEGATION_TOKEN
+就會失效，也就聯想到Hadoop叢集的 namen...">
+    
+    <meta property="article:published_time" content="2021-12-09T00:00:00Z">
+    
+    
+    
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/article/page7/">
+    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/12/09/%E8%A8%98%E4%B8%80%E6%AC%A1HDFS_DELEGATION_TOKEN%E9%81%8E%E6%9C%9F%E7%9A%84%E5%95%8F%E9%A1%8C/">
     <meta property="og:site_name" content="">
 
-    <title>HOME - </title>
+    <title>記一次HDFS_DELEGATION_TOKEN過期的問題 - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -29,7 +40,7 @@
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/article/page7/">
+    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2021/12/09/%E8%A8%98%E4%B8%80%E6%AC%A1HDFS_DELEGATION_TOKEN%E9%81%8E%E6%9C%9F%E7%9A%84%E5%95%8F%E9%A1%8C/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -177,7 +188,11 @@
 </script>
 
 
-    <!-- Page Header -->
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/concretewall.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
 
 
 
@@ -192,9 +207,9 @@
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">HOME</h3>
+          <h3 id="intro-header-item">記一次HDFS_DELEGATION_TOKEN過期的問題</h3>
           <span class="subheading"></span>
-          <span class="meta"></span>
+          <span class="meta">December 9, 2021</span>
         </div>
       </div>
     </div>
@@ -203,109 +218,172 @@
 
 
 
-<!-- Main Content -->
-<div class="container">
-	<div class="row">
-    
-    <!-- NO SIDEBAR -->
-    <!-- PostList Container -->
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
-<!--            <div id="app">-->
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
                 
-<!--<h1>0</h1>-->
-<!--<h1>0</h1>-->
-<!--<h1>0</h1>-->
-<!--<h1>0</h1>-->
 
+                <div id="app">
+                    <p>TL;DR</p>
 
-<div class="post-preview">
-    <a href="/%E6%9B%B8%E5%B1%8B/2021/11/09/%E9%97%9C%E6%96%BC%E6%8F%90%E5%8D%87%E8%A6%BA%E5%AF%9F%E5%8A%9B-%E7%9C%9F%E6%AD%A3%E6%8E%A5%E7%B4%8D%E8%87%AA%E6%88%91/">
-        <h2 class="post-title">
-            關於提升覺察力，真正接納自我
-        </h2>
-        
-        <h3 class="post-subtitle">
+<p><a href="https://issues.apache.org/jira/browse/HDFS-9276">HDFS-9276</a>, <a href="https://github.com/apache/spark/pull/9168">SPARK-11182</a></p>
+
+<p>最近開發的Spark Streaming串流程式每七天就會報下面這串 Exception，起初也不以為意覺得是Hadoop叢集的問題，
+後來觀察日誌才發現它是每七天就會出現一次，讓程式 crash 掉的問題。可以理解為，每七天Spark的HDFS_DELEGATION_TOKEN
+就會失效，也就聯想到Hadoop叢集的 namenode delegation token 的最大lifetime的初始值也是7天。
+(dfs.namenode.delegation.token.max-lifetime=604800000ms) and dfs.namenode.delegation.token.renew-
+interval=86400000(1 day)</p>
+
+<pre><code class="language-angular2html">ERROR JobScheduler: Error running job streaming job 1528366650000 ms.0
+org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.token.SecretManager$InvalidToken):
+token (token for spark_online: HDFS_DELEGATION_TOKEN owner=spark@XXXXX, renewer=yarn, realUser=, issueDate=1528232733578, maxDate=1528837533578, sequenceNumber=14567778, masterKeyId=1397)
+</code></pre>
+
+<p>根據不管是 <a href="https://spark.apache.org/docs/2.4.6/security.html#long-running-applications">Spark 2.4.6</a> 或者 
+<a href="https://spark.apache.org/docs/3.0.0-preview/security.html#long-running-applications">Spark 3.0.0</a> 以上的官方介紹文檔，
+都表示Spark本身就可以根據使用者提供的keytab和principle去自動的renew token，關鍵句子如下。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>Spark supports automatically creating new tokens for these applications when running in YARN mode. 
+Kerberos credentials need to be provided to the Spark application via the spark-submit command, using the --principal and --keytab parameters.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>但是，HDFS-9276說明，在開啟<a href="https://codertw.com/程式語言/442243/">高可用機制的 Hadoop 叢集</a>上，緩存的 DFSClient 會使用舊的 hdfs_delegation_token 的，從而導致 token 在其最大的生命週期
+到達時過期。就是 Spark 在更新 Hadoop HA 叢集的 delegation token 的時候，DFSClient 不會一起更新它的 token (
+namenode token)。reference: <a href="https://www.codenong.com/cs106192404/">sparkThriftserver 长时间运行HDFS_DELEGATION_TOKEN失效问题</a></p>
+
+<p>解決方法根據 <a href="https://github.com/apache/spark/pull/9168">SPARK-11182</a> 裡面提到的， 可能的方式：</p>
+
+<p>(1) 更新 Hadoop 的版本到 2.9.0 或以上。（然而我們的版本是 2.6.0，更新的可能性不大）</p>
+
+<p>(2) 調整dfs.namenode.delegation.token.max-lifetime 等於一個較大的值，使得 token 最大生命週期變長，從而滿足使用者需要。</p>
+
+<p>(3) 調整設定 <code class="language-plaintext highlighter-rouge">spark.hadoop.fs.hdfs.impl.disable.cache=true</code>。然而，好像沒有效果。</p>
+
+<p>目前採用的方式是修改 Hadoop Cluster 上面的 token 的 max-lifetime，並在 token 生命週期到達的時候，排程重啟 Spark 
+Structured Streaming 程式以更新 token。</p>
+
+<p>Reference</p>
+<ol>
+  <li><a href="https://blog.csdn.net/u012150370/article/details/86518366">记一次HDFS Delegation Token失效问题</a></li>
+  <li><a href="https://www.jianshu.com/p/2904334ae404">hdfs delegation token 过期问题分析</a></li>
+  <li><a href="https://www.athemaster.com/resources/47">解釋 Hadoop Delegation Token 上篇</a></li>
+</ol>
+
+                </div>
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/12/04/Spark-application-with-Kerberos/" data-toggle="tooltip" data-placement="top" title="Spark Application with Kerberos - Intro">
+                        Previous<br>
+                        <span>Spark Application with Kerberos - Intro</span>
+                        </a>
+                    </li>
+                    
+                    
+            </ul>
+            <hr style="visibility: hidden;">
+
             
-        </h3>
-        
-    </a>
-    <p class="post-meta">
-        November 9, 2021 &nbsp;|&nbsp;
-        约2分钟读完
-        大约656个字
+            <!-- disqus 评论框 start -->
+            <div class="comment">
+                <div id="disqus_thread" class="disqus-thread"></div>
+            </div>
+            <!-- disqus 评论框 end -->
+            
 
-        &nbsp;|&nbsp;&nbsp;
-        <a href="/categories.html?categories=書屋" title="書屋">書屋&nbsp;</a>
-        
-        <!--        -->
-        <!--            &nbsp;|&nbsp;-->
-        <!--            <span class="tags tags-sup">-->
-        <!--            -->
-        <!--            </span>-->
-        <!--        -->
-    </p>
-    <div class="post-content-preview">
-        
-        <p>好吧，簡單來說上面標題的更白話一點的意思應該是，”慢慢卸下面具，放下想象中的模樣，開始與真正的自己連結。”</p>
-
-<p>進入職場、大人的世界之後，每天總是會為了迎合他人，而假裝地嘴角上揚，原本你自在的心還會一次次的提醒自己，”你好像已經很久沒有發自內心的笑了”。
-直到假裝和表面變成反射動作，你開始對自己不包容、不開放，開始自我批判，下意識地與同儕比較和競爭，怕所有人背著你學習，怕自己不夠好、不夠厲害，甚至害怕
-自己沒有別人想像中的那般厲害，於是不自信的思維從心底油然而生，最後誰也無法看清你是誰。接納自我：</p>
-
-<p>第一步，停止道歉和自我批判。最近工作上和同事聊到想在工作上”做自己”，而不是工作中總是在在”服務他人”，當然如果你從事的是服務業好像就是另當別論。
-盤點下來，”做自己”的例子比如，大聲區分工作權責，或者大聲說自己真的想做什麼，而不是不帶感情的完成一件待辦事項。當然這和你富有熱情、熱忱地，想要幫忙解決問題的
-情況是完全不同的。熱忱如果不是出自真正接納自己恐會是淪為三分鐘熱度，又或者只是你的其中一個面具。</p>
-
-<p>第二步，回想自信時刻。自信和自負的區別，打個比方來說就是，你抬起的是下巴還是鼻子，就是你能否接受來自他人的意見或批評。
-避免自己在嘗試做自己的時候，迷失方向，看不到其他人，而逃避了其他人，最後在自我逃避。</p>
-
-<p>第三步，採取行動。找到自己最自在的那個時候，從那開始跨出舒適圈，讓自己去挑戰或爭取心中渴望已久的事物，並將實踐的過程與理想的成果形象化。
-清楚地找到自己的目標。</p>
-
-<p>覺察力，讓你更了解自己，也更容易接納他人，更能夠與他人連結。</p>
-
-        
-    </div>
-
-    <!-- capture tags for every article -->
-    
-    
-    <br/>
-
-    <hr/>
-    <!--  Posted by -->
-</div>
-
-
-<!-- Pager -->
-
-<ul class="pager">
-    
-    <li class="previous">
-        <a href="/article/page6/">&larr; Newer Posts</a>
-    </li>
-    
-    
-    <li class="next">
-        <a href="/article/page8/">Older Posts &rarr;</a>
-    </li>
-    
-</ul>
-
-
-<!--            </div>-->
+            
         </div>
-        <!-- Sidebar Container -->
+
+    <!-- Side Catalog Container -->
+    
+
+<!-- Sidebar Container -->
         <div class="
             col-lg-8 col-lg-offset-2
             col-md-10 col-md-offset-1
             sidebar-container">
 
-        </div>
-    
-	</div>
-</div>
 
+        </div>
+    </div>
+</div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+    <script>
+        /**
+         *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+         *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+        /*
+        var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        };
+        */
+        var disqus_shortname = "williams-note";
+        (function() { // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            s.src = 'https://' + 'williams-note' + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+
+
+
+
+    <!-- async load function -->
+    <script>
+        function async(u, c) {
+          var d = document, t = 'script',
+              o = d.createElement(t),
+              s = d.getElementsByTagName(t)[0];
+          o.src = u;
+          if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+          s.parentNode.insertBefore(o, s);
+        }
+    </script>
+    <!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+    <script>
+        async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+            anchors.options = {
+              visible: 'hover',
+              placement: 'right',
+              // icon: '#'
+            };
+            anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+        })
+    </script>
+    <style>
+        /* place left on bigger screen */
+        @media all and (min-width: 800px) {
+            .anchorjs-link{
+                position: absolute;
+                left: -0.75em;
+                font-size: 1.1em;
+                margin-top : -0.1em;
+            }
+        }
+    </style>
 
 
 

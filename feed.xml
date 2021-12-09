@@ -5,9 +5,67 @@
     <description></description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 05 Dec 2021 14:03:22 +0000</pubDate>
-    <lastBuildDate>Sun, 05 Dec 2021 14:03:22 +0000</lastBuildDate>
+    <pubDate>Thu, 09 Dec 2021 16:29:30 +0000</pubDate>
+    <lastBuildDate>Thu, 09 Dec 2021 16:29:30 +0000</lastBuildDate>
     <generator>Jekyll v4.1.1</generator>
+    
+      <item>
+        <title>記一次HDFS_DELEGATION_TOKEN過期的問題</title>
+        <description>&lt;p&gt;TL;DR&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/HDFS-9276&quot;&gt;HDFS-9276&lt;/a&gt;, &lt;a href=&quot;https://github.com/apache/spark/pull/9168&quot;&gt;SPARK-11182&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;最近開發的Spark Streaming串流程式每七天就會報下面這串 Exception，起初也不以為意覺得是Hadoop叢集的問題，
+後來觀察日誌才發現它是每七天就會出現一次，讓程式 crash 掉的問題。可以理解為，每七天Spark的HDFS_DELEGATION_TOKEN
+就會失效，也就聯想到Hadoop叢集的 namenode delegation token 的最大lifetime的初始值也是7天。
+(dfs.namenode.delegation.token.max-lifetime=604800000ms) and dfs.namenode.delegation.token.renew-
+interval=86400000(1 day)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-angular2html&quot;&gt;ERROR JobScheduler: Error running job streaming job 1528366650000 ms.0
+org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.token.SecretManager$InvalidToken):
+token (token for spark_online: HDFS_DELEGATION_TOKEN owner=spark@XXXXX, renewer=yarn, realUser=, issueDate=1528232733578, maxDate=1528837533578, sequenceNumber=14567778, masterKeyId=1397)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;根據不管是 &lt;a href=&quot;https://spark.apache.org/docs/2.4.6/security.html#long-running-applications&quot;&gt;Spark 2.4.6&lt;/a&gt; 或者 
+&lt;a href=&quot;https://spark.apache.org/docs/3.0.0-preview/security.html#long-running-applications&quot;&gt;Spark 3.0.0&lt;/a&gt; 以上的官方介紹文檔，
+都表示Spark本身就可以根據使用者提供的keytab和principle去自動的renew token，關鍵句子如下。&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;Spark supports automatically creating new tokens for these applications when running in YARN mode. 
+Kerberos credentials need to be provided to the Spark application via the spark-submit command, using the --principal and --keytab parameters.
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;但是，HDFS-9276說明，在開啟&lt;a href=&quot;https://codertw.com/程式語言/442243/&quot;&gt;高可用機制的 Hadoop 叢集&lt;/a&gt;上，緩存的 DFSClient 會使用舊的 hdfs_delegation_token 的，從而導致 token 在其最大的生命週期
+到達時過期。就是 Spark 在更新 Hadoop HA 叢集的 delegation token 的時候，DFSClient 不會一起更新它的 token (
+namenode token)。reference: &lt;a href=&quot;https://www.codenong.com/cs106192404/&quot;&gt;sparkThriftserver 长时间运行HDFS_DELEGATION_TOKEN失效问题&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;解決方法根據 &lt;a href=&quot;https://github.com/apache/spark/pull/9168&quot;&gt;SPARK-11182&lt;/a&gt; 裡面提到的， 可能的方式：&lt;/p&gt;
+
+&lt;p&gt;(1) 更新 Hadoop 的版本到 2.9.0 或以上。（然而我們的版本是 2.6.0，更新的可能性不大）&lt;/p&gt;
+
+&lt;p&gt;(2) 調整dfs.namenode.delegation.token.max-lifetime 等於一個較大的值，使得 token 最大生命週期變長，從而滿足使用者需要。&lt;/p&gt;
+
+&lt;p&gt;(3) 調整設定 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;spark.hadoop.fs.hdfs.impl.disable.cache=true&lt;/code&gt;。然而，好像沒有效果。&lt;/p&gt;
+
+&lt;p&gt;目前採用的方式是修改 Hadoop Cluster 上面的 token 的 max-lifetime，並在 token 生命週期到達的時候，排程重啟 Spark 
+Structured Streaming 程式以更新 token。&lt;/p&gt;
+
+&lt;p&gt;Reference&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;https://blog.csdn.net/u012150370/article/details/86518366&quot;&gt;记一次HDFS Delegation Token失效问题&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.jianshu.com/p/2904334ae404&quot;&gt;hdfs delegation token 过期问题分析&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.athemaster.com/resources/47&quot;&gt;解釋 Hadoop Delegation Token 上篇&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Thu, 09 Dec 2021 00:00:00 +0000</pubDate>
+        <link>/%E6%8A%80%E8%A1%93/2021/12/09/%E8%A8%98%E4%B8%80%E6%AC%A1HDFS_DELEGATION_TOKEN%E9%81%8E%E6%9C%9F%E7%9A%84%E5%95%8F%E9%A1%8C/</link>
+        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/12/09/%E8%A8%98%E4%B8%80%E6%AC%A1HDFS_DELEGATION_TOKEN%E9%81%8E%E6%9C%9F%E7%9A%84%E5%95%8F%E9%A1%8C/</guid>
+        
+        
+        <category>技術</category>
+        
+      </item>
     
       <item>
         <title>Spark Application with Kerberos - Intro</title>

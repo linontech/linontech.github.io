@@ -101,6 +101,8 @@
                     
                     
                     
+                    
+                    
                     <li>
                         <a href="/archive/">ARCHIVE</a>
                     </li>
@@ -217,9 +219,9 @@
 
 
 <div class="post-preview">
-    <a href="/%E6%8A%80%E8%A1%93/2021/11/17/%E8%B8%A9%E5%9D%91-Azure-TFS-%E9%83%A8%E7%BD%B2%E4%BD%BF%E7%94%A8%E8%80%85%E8%87%AA%E5%AE%9A%E7%BE%A9%E5%8F%83%E6%95%B8/">
+    <a href="/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/">
         <h2 class="post-title">
-            踩坑 Azure TFS 部署使用者定義參數
+            kafka 小白二三事（一）
         </h2>
         
         <h3 class="post-subtitle">
@@ -228,9 +230,9 @@
         
     </a>
     <p class="post-meta">
-        November 17, 2021 &nbsp;|&nbsp;
+        November 23, 2021 &nbsp;|&nbsp;
         约4分钟读完
-        大约1209个字
+        大约1186个字
 
         &nbsp;|&nbsp;&nbsp;
         <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
@@ -244,74 +246,63 @@
     </p>
     <div class="post-content-preview">
         
-        <h3 id="前情提要">前情提要</h3>
+        <p>Kafka，分佈式、高吞吐量、高擴展性消息隊列系統。是一個被廣為使用的消息隊列中間件。常用來異步處理請求、
+流量削峰、日誌處理、解耦業務處理過程。。等等。</p>
 
-<p>最近在角落研究微軟 Azure TFS 的 Release Pipeline 的參數傳遞的部分，Windows 的 Server 的 Release Pipeline 要讀取部署
-Pipeline 上設置的環境變數，到 Linux Server 上面的 shell 做使用。每次覺得 code review 都一切 Look Very Good to
-me 的時候，總是會有未知的彩蛋。在 Azure TFS 上設置的環境參數名稱，原本小寫的部分被轉成了大寫，不止如此參數名稱如果原本有帶 dot
-的，也轉換成了底線。</p>
+<p>生產消息 Producer，消費者 Consumer, Consumer Group，兩端業務邏輯被解耦一個負責生產數據，另一個就是單純
+把數據接收下來，並且由 Consumer Group去記錄對應某個 Topic 目前信息接收到第幾條了 (offset)。這些生產者和
+消費者彼此之間除了約定 Schema 之外沒有直接的關聯，生產者和消費者的吃飯的傢伙事活動都由 kafka broker 負責。
+可以說一個 kafka broker 就是一個 kafka ，多個 kafka broker 就會組成一個 kafka 集群。</p>
 
-<h3 id="tfs-release-pipeline-參數名稱命名規範">TFS Release Pipeline 參數名稱命名規範</h3>
+<p>名詞解釋</p>
 
-<p>因為需要把Azure TFS上設置的環境變量，直接帶到 Linux Server 上使用，不想一個一個參數的傳進 shell 檔裡面，參數多的時候真的會覺得
-懷疑人生，所以稍微看了一下 Azure Pipeline 的使用者定義參數使用方式。
-如果你也想讀英文，這是參考的<a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&amp;tabs=yaml%2Cbatch&amp;WT.mc_id=DT-MVP-4015686#variable-naming-restrictions">連結</a>。</p>
+<ul>
+  <li>Event</li>
+</ul>
 
-<ol>
-  <li>Macro Syntax Variables</li>
-</ol>
+<p>每個在 Kafka 內保存的資料可以視為一個事件，一個事件包含了鍵 key，值 value，時間戳 timestamp。</p>
 
-<pre><code class="language-angular2html"># 注意這邊是括號不是大括號
-echo $(my_variable)
-</code></pre>
+<ul>
+  <li>Topic</li>
+</ul>
 
-<ol>
-  <li>Template Expression Variables</li>
-</ol>
+<p>區分不同消息的放置位置和，好比 table name。</p>
 
-<p>範本參數，顧名思義會在編譯的時候就把參數做替換。一般來說，這個參數表達方式，會用在複用部署 YAML 檔的某一部分，並傳遞進去相應的參數。
-當發現無法替換的參數，會直接替換成空字串。</p>
+<ul>
+  <li>Partition</li>
+</ul>
 
-<ol>
-  <li>Runtime Expression Variables</li>
-</ol>
+<p>分區，這裡的概念基本上和 ElasticSearch 上的分片概念是一樣的。都是想把數據合理的放在不同 server 的分區上面，以達到
+負載均衡。特別要注意的是，每個分區存儲的數據都是有序的，但是不同分區間的數據不保證有序性。若有保證有序，
+那就只能設置一個分區。</p>
 
-<p>一般來說，這個參數表達方式，會用在條件式判斷去執行不同 Task 的時候。另外，它也只會在作為值的時候被使用，無法作為key值做使用。</p>
+<ul>
+  <li>Replica</li>
+</ul>
 
-<pre><code class="language-angular2html">$[variables.key] : value # invalid
-key : $[variables.value] # valid
-key : $[variables.value]foo # invalid
-</code></pre>
+<p>副本，kafka 為了防止服務器壞掉採取的措施。需要注意的是不同分區的備份存放的是不同部分的數據，也就是如果沒有備份整個
+kafka 集群就無法備份 kafka topic 的所有的分區。</p>
 
-<h3 id="release-pipeline-inline-script-命令行指令的保護措施">Release Pipeline inline script 命令行指令的保護措施</h3>
+<ul>
+  <li>Broker</li>
+</ul>
 
-<p>當執行某些重要的指令，比如，登入會使用到的帳號密碼作為參數是不可缺少的部分，如果其中作為密碼的參數不見，很有可能會導致整個 Server 上因為 key 錯
-密碼而發生災難。又或者是，在部署期間需要把某個路徑中的文件刪除。如果這個路徑使用環境參數拼出來的話，就會需要特別注意了。一個處理方式是，利用下面的 linux 條件
-判斷式，排除某些重要參數為空值的情況。</p>
+<p>Broker 指運行 Kafka 的機器。多個 Broker 就組成 Kafka 集群。</p>
 
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-</pre></td><td class="rouge-code"><pre><span class="k">if</span> <span class="o">[</span> <span class="nt">-z</span> <span class="k">${</span><span class="nv">password</span><span class="p">+x</span><span class="k">}</span> <span class="o">]</span> <span class="o">||</span> <span class="o">[</span> <span class="nt">-z</span> <span class="k">${</span><span class="nv">account</span><span class="p">+x</span><span class="k">}</span> <span class="o">]</span> <span class="o">||</span> <span class="o">[</span> <span class="nt">-z</span> <span class="k">${</span><span class="nv">path</span><span class="p">/to/your/app+x</span><span class="k">}</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
-  </span><span class="nb">echo</span> <span class="s2">"Parameter Error!"</span><span class="p">;</span>
-  <span class="nb">exit</span><span class="p">;</span>
-<span class="k">fi</span>
-</pre></td></tr></tbody></table></code></pre></div></div>
+<ul>
+  <li>Controller (Leader Broker)</li>
+</ul>
 
-<p>或者也有微軟 powershell 的寫法可以參考，</p>
+<p>Kafka controller 是一個 Kafka集群的頭腦部分，一個Kafka集群只能有一個 Controller，那個節點就和一般的broker無異，
+只是多負責管理整個集群中所有分區和副本的狀態，比如 broker server 的上線、下線處理，創建/刪除 topic，處理每個 topic 的分區副本分配，以及 leader 
+的選舉，等等。</p>
 
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-</pre></td><td class="rouge-code"><pre><span class="k">if</span> <span class="o">(</span><span class="s2">"</span><span class="si">$(</span>PUSH_ACCOUNT<span class="si">)</span><span class="s2">"</span> <span class="nt">-And</span> <span class="s2">"</span><span class="si">$(</span>PUSH_PASSWORD<span class="si">)</span><span class="s2">"</span><span class="o">)</span> <span class="o">{</span>
-  <span class="c"># some very important command you want to execute</span>
-<span class="o">}}</span> <span class="k">else</span> <span class="o">{</span>
-  Write-Host <span class="s2">"Fatal. Missing Necessary Parameter"</span>
-<span class="o">}</span>
-</pre></td></tr></tbody></table></code></pre></div></div>
+<p>提到 Controller 就感覺還會需要科普學習一下下 zookeeper。官方文件寫到，<code class="language-plaintext highlighter-rouge">ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services. </code>
+至少在 2021 年之前他對於 kafka都扮演重要的角色。 Kafka 保存了很多重要的元數據在 zookeeper，比如 kafka topic 的基本資訊，分區、副本等資訊，以及 broker 信息和ISR（In-Sync Replicas）等等。</p>
+
+<ul>
+  <li>ISR (In-Sync-replicas)</li>
+</ul>
 
         
     </div>

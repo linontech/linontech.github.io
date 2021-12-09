@@ -101,6 +101,8 @@
                     
                     
                     
+                    
+                    
                     <li>
                         <a href="/archive/">ARCHIVE</a>
                     </li>
@@ -217,9 +219,9 @@
 
 
 <div class="post-preview">
-    <a href="/%E6%8A%80%E8%A1%93/2021/12/04/Spark-application-with-Kerberos/">
+    <a href="/%E6%8A%80%E8%A1%93/2021/12/09/%E8%A8%98%E4%B8%80%E6%AC%A1HDFS_DELEGATION_TOKEN%E9%81%8E%E6%9C%9F%E7%9A%84%E5%95%8F%E9%A1%8C/">
         <h2 class="post-title">
-            Spark Application with Kerberos - Intro
+            記一次HDFS_DELEGATION_TOKEN過期的問題
         </h2>
         
         <h3 class="post-subtitle">
@@ -228,9 +230,9 @@
         
     </a>
     <p class="post-meta">
-        December 4, 2021 &nbsp;|&nbsp;
+        December 9, 2021 &nbsp;|&nbsp;
         约5分钟读完
-        大约1499个字
+        大约1624个字
 
         &nbsp;|&nbsp;&nbsp;
         <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
@@ -244,73 +246,51 @@
     </p>
     <div class="post-content-preview">
         
-        <p>Kerberos 是三方認證機制，用戶和服務依賴於第三方（Kerberos 伺服器, KDC）來對彼此進行身份驗證。KDC 包含了一個認證
-服務器 (Authenticate Server)，一個票證授權服務器 (Ticket-Granting Server)，以及一個記錄他所知道的 principles
-和它們的 Kerberos 密碼的內建資料庫。</p>
+        <p>TL;DR</p>
 
-<h4 id="principle">Principle</h4>
+<p><a href="https://issues.apache.org/jira/browse/HDFS-9276">HDFS-9276</a>, <a href="https://github.com/apache/spark/pull/9168">SPARK-11182</a></p>
 
-<p>一個 Kerberos principle 長得像，</p>
+<p>最近開發的Spark Streaming串流程式每七天就會報下面這串 Exception，起初也不以為意覺得是Hadoop叢集的問題，
+後來觀察日誌才發現它是每七天就會出現一次，讓程式 crash 掉的問題。可以理解為，每七天Spark的HDFS_DELEGATION_TOKEN
+就會失效，也就聯想到Hadoop叢集的 namenode delegation token 的最大lifetime的初始值也是7天。
+(dfs.namenode.delegation.token.max-lifetime=604800000ms) and dfs.namenode.delegation.token.renew-
+interval=86400000(1 day)</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-</pre></td><td class="rouge-code"><pre>username/fully.qualified.domain.name@YOUR-REALM.COM，按照先後順序，
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<p>它們分別是 primary，instance(option) 和 realm。primary 代表 Kerberos 的用戶，它可以是一個 unix account
-比如 ap 帳號，也可以是Hadoop服務的Unix帳號，比如 hdfs。instance 是用來區分單個 user 的多個 principle 時使用。
-realm 類似 DNS 中的域，不同的是 DNS 是定義了一組主機名，而 realm 則是定義了一組相關的 principle。</p>
-
-<h4 id="keytab">Keytab</h4>
-
-<p>Keytab 包含了加密的principle鍵值和對應的 Kerberos principle。 它被用來在驗證一個 Kerberos principle，
-而不用人為得敲打密碼或者明碼保存密碼了。</p>
-
-<pre><code class="language-angular2html">A keytab is a file containing pairs of Kerberos principals and encrypted keys (which are derived from the Kerberos password). 
-You can use a keytab file to authenticate to various remote systems using Kerberos without entering a password.
+<pre><code class="language-angular2html">ERROR JobScheduler: Error running job streaming job 1528366650000 ms.0
+org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.token.SecretManager$InvalidToken):
+token (token for spark_online: HDFS_DELEGATION_TOKEN owner=spark@XXXXX, renewer=yarn, realUser=, issueDate=1528232733578, maxDate=1528837533578, sequenceNumber=14567778, masterKeyId=1397)
 </code></pre>
 
-<h4 id="ticket-granting-ticket-tgt">Ticket-Granting ticket TGT</h4>
-<p>由 KDC 中的 Authenticate Server頒發的票證，使用者帶著這個票證可以向 Server 端請求相應的服務。</p>
-
-<h4 id="ccache-credential-cache">ccache (Credential Cache)</h4>
-<p>Credential Cache 也是 Kerberos 驗證身份的一種方式，它持有Kerberos的憑證，使得使用者所執行任務session還有效時，
-多次驗證服務器，而不用一直請求 KDC 服務器。</p>
-
-<h3 id="long-running-spark-application-with-kerberos">Long-running Spark Application with Kerberos</h3>
-
-<p>對於一個 Spark Streaming 服務，只要在 spark submit 指令後面加上 –keytab 和 –principle 兩個參數，
-Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation token 和 login ticket。</p>
-
-<h3 id="kafka-with-a-kerberos-ticket-cache">Kafka with a Kerberos Ticket Cache</h3>
-
-<p>如果你的 Spark Streaming 任務的串流資料來自於 Kafka，別忘了在 worker node 上面，由於 kafka 的 Kerberos 認證 
-也會需要的 keytab 會需要送到 worker node 上面，否則會認證失敗。</p>
-
-<p>jaas_driver.conf</p>
+<p>根據不管是 <a href="https://spark.apache.org/docs/2.4.6/security.html#long-running-applications">Spark 2.4.6</a> 或者 
+<a href="https://spark.apache.org/docs/3.0.0-preview/security.html#long-running-applications">Spark 3.0.0</a> 以上的官方介紹文檔，
+都表示Spark本身就可以根據使用者提供的keytab和principle去自動的renew token，關鍵句子如下。</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
-3
-4
-5
-6
-7
-8
-9
-</pre></td><td class="rouge-code"><pre>KafkaClient {
-    com.sun.security.auth.module.Krb5LoginModule required
-    useKeyTab=true
-    storeKey=true
-    keyTab="/path/on/driver/for/keytab"
-    principal="user@your.customized.realm.name"
-    debug=true
-    serviceName="kafka";
-};
+</pre></td><td class="rouge-code"><pre>Spark supports automatically creating new tokens for these applications when running in YARN mode. 
+Kerberos credentials need to be provided to the Spark application via the spark-submit command, using the --principal and --keytab parameters.
 </pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>但是，HDFS-9276說明，在開啟<a href="https://codertw.com/程式語言/442243/">高可用機制的 Hadoop 叢集</a>上，緩存的 DFSClient 會使用舊的 hdfs_delegation_token 的，從而導致 token 在其最大的生命週期
+到達時過期。就是 Spark 在更新 Hadoop HA 叢集的 delegation token 的時候，DFSClient 不會一起更新它的 token (
+namenode token)。reference: <a href="https://www.codenong.com/cs106192404/">sparkThriftserver 长时间运行HDFS_DELEGATION_TOKEN失效问题</a></p>
+
+<p>解決方法根據 <a href="https://github.com/apache/spark/pull/9168">SPARK-11182</a> 裡面提到的， 可能的方式：</p>
+
+<p>(1) 更新 Hadoop 的版本到 2.9.0 或以上。（然而我們的版本是 2.6.0，更新的可能性不大）</p>
+
+<p>(2) 調整dfs.namenode.delegation.token.max-lifetime 等於一個較大的值，使得 token 最大生命週期變長，從而滿足使用者需要。</p>
+
+<p>(3) 調整設定 <code class="language-plaintext highlighter-rouge">spark.hadoop.fs.hdfs.impl.disable.cache=true</code>。然而，好像沒有效果。</p>
+
+<p>目前採用的方式是修改 Hadoop Cluster 上面的 token 的 max-lifetime，並在 token 生命週期到達的時候，排程重啟 Spark 
+Structured Streaming 程式以更新 token。</p>
 
 <p>Reference</p>
 <ol>
-  <li><a href="https://spark.apache.org/docs/2.4.6/running-on-yarn.html#yarn-specific-kerberos-configuration">Running Spark on YARN</a></li>
+  <li><a href="https://blog.csdn.net/u012150370/article/details/86518366">记一次HDFS Delegation Token失效问题</a></li>
+  <li><a href="https://www.jianshu.com/p/2904334ae404">hdfs delegation token 过期问题分析</a></li>
+  <li><a href="https://www.athemaster.com/resources/47">解釋 Hadoop Delegation Token 上篇</a></li>
 </ol>
 
         
