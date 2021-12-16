@@ -5,8 +5,8 @@
     <description></description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 09 Dec 2021 16:29:30 +0000</pubDate>
-    <lastBuildDate>Thu, 09 Dec 2021 16:29:30 +0000</lastBuildDate>
+    <pubDate>Thu, 16 Dec 2021 14:00:25 +0000</pubDate>
+    <lastBuildDate>Thu, 16 Dec 2021 14:00:25 +0000</lastBuildDate>
     <generator>Jekyll v4.1.1</generator>
     
       <item>
@@ -423,6 +423,157 @@ join來串接，ElasticSearch 通常會用使用sub document的方式。 此外�
         <pubDate>Sat, 06 Nov 2021 00:00:00 +0000</pubDate>
         <link>/%E6%8A%80%E8%A1%93/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84/</link>
         <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84/</guid>
+        
+        
+        <category>技術</category>
+        
+      </item>
+    
+      <item>
+        <title>logstash 初次見面</title>
+        <description>&lt;p&gt;Logstash: Collect, Parse and Transform logs.&lt;/p&gt;
+
+&lt;p&gt;Logstash 是一個用來做日誌收集，分析，過濾的工具。初見時
+logstash的對資料流的設定檔案，名稱前面標示了數字，聽前說人檔案會按照 filename 字母順序組合，這在需要切分複雜設定的時候
+或許有些用，也要特別注意用條件來區分不同的資料流。但使用下來我還是覺得如果沒有需要幾千行的設定，那還是放在一個設定檔裡面就好了。&lt;/p&gt;
+
+&lt;h3 id=&quot;-設定檔格式&quot;&gt;# 設定檔格式&lt;/h3&gt;
+
+&lt;p&gt;input, filter, output 的組成非常符合 Logstash 的人設。要特別說的是檔案裡面也是可以空行和寫注釋的，
+畢竟只是一個定義資料流的腳本，寫明白資料的來源格式和指定輸出格式，以及解析的方式還是很重要的。&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;input { # comments can appear at the end of a line, too
+  http {
+    codec =&amp;gt; json {
+      charset =&amp;gt; &quot;ISO-8859-1&quot;
+      target =&amp;gt; &quot;[document]&quot;
+    }
+  }
+}
+
+filter {
+}
+
+output {
+}
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;-常用的-plugin&quot;&gt;# 常用的 plugin&lt;/h3&gt;
+
+&lt;h4 id=&quot;codec&quot;&gt;codec&lt;/h4&gt;
+
+&lt;p&gt;codec 表示編解碼插件，可以按照約定好的格式將數據讀進來logstash。例如直接將json字符串格式的資料定義為key value的格式。
+一些常見的編解碼插件如下，&lt;/p&gt;
+
+&lt;p&gt;(1) json
+(2) csv
+(3) protobuf&lt;/p&gt;
+
+&lt;p&gt;Google Protocol Buffer 是一種輕便高效的結構化存儲數據的格式。&lt;/p&gt;
+
+&lt;p&gt;(4) multiline&lt;/p&gt;
+
+&lt;p&gt;Collapse multiline messages and merge them into a single event. 例如，當你需要將任何一行不是以時間戳記
+開頭的字符串合併到它的上一行，就可以很方便的使用這個 codec。官方給的實現方式如下，&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;    input {
+      file {
+        path =&amp;gt; &quot;/var/log/someapp.log&quot;
+        codec =&amp;gt; multiline {
+          # Grok pattern names are valid! :)
+          pattern =&amp;gt; &quot;^%{TIMESTAMP_ISO8601} &quot;
+          negate =&amp;gt; true
+          what =&amp;gt; &quot;previous&quot;
+        }
+      }
+    }
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;(5) rubydebug&lt;/p&gt;
+
+&lt;p&gt;輸出時使用，通常會用在 debug 的時候。它能將logstash的事件用Ruby Amazing Print library的格式輸出。&lt;/p&gt;
+
+&lt;h4 id=&quot;grok&quot;&gt;grok&lt;/h4&gt;
+
+&lt;p&gt;grok 是一個 filter 插件，負責把收到的數據，以使用者自定義的正則處理，讓數據變成使用者想要的鍵值對的格式。&lt;/p&gt;
+
+&lt;p&gt;特別的，由於日誌通常很長一串又格式複雜，於是 &lt;a href=&quot;https://grokdebug.herokuapp.com&quot;&gt;Grok Debugger Tool&lt;/a&gt; 就出現了，
+可以直接透過這個小工具來檢查自己的解析語法是否match到所有自己想要的欄位。&lt;/p&gt;
+</description>
+        <pubDate>Fri, 15 Oct 2021 00:00:00 +0000</pubDate>
+        <link>/%E6%8A%80%E8%A1%93/2021/10/15/logstash-%E5%88%9D%E6%AC%A1%E8%A6%8B%E9%9D%A2/</link>
+        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/10/15/logstash-%E5%88%9D%E6%AC%A1%E8%A6%8B%E9%9D%A2/</guid>
+        
+        
+        <category>技術</category>
+        
+      </item>
+    
+      <item>
+        <title>kafka connect 原來是你</title>
+        <description>&lt;h3 id=&quot;-前情提要&quot;&gt;# 前情提要&lt;/h3&gt;
+
+&lt;p&gt;應用場景需要將插入 Oracle 資料庫的資料，用串流的方式寫入 Kafka，Oracle 官方提供的解決方案是 OCIS，Oracle
+Cloud Infrastructure Stream 裡面的 Kafka Connect Harness，沒有錯這是一個付費服務，估計是在原先開源 Kafka 
+Connect 對 Oracle 的支持上進行了優化，如果口袋沒有很深去嘗試使用它，真的就只能好好調研一下了。是說這篇是要介紹
+Kafka Connect的啦，趕快拉回正題。&lt;/p&gt;
+
+&lt;p&gt;Kafka Connect 是一個介接其他數據庫和 Kafka 之間的串流工具，它繼承了 Kafka 的可擴展性(scalability)和高可靠性(reliably)
+。它可以接收整個數據庫，比如 Oracle，或者收集特定的指標，送到指定的 Kafka topic。&lt;/p&gt;
+
+&lt;h3 id=&quot;-source-connector-modes&quot;&gt;# Source Connector Modes&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;bulk modes&lt;/p&gt;
+
+    &lt;p&gt;整張表每次都重新讀一遍。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Incremental Mode With Incrementing Column&lt;/p&gt;
+
+    &lt;p&gt;用一個遞增的欄位做辨別，只讀取新的資料。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Incremental Mode With Timestamp Column&lt;/p&gt;
+
+    &lt;p&gt;用一個時間欄位當做 Kafka Connect 抓取資料的依據，並假設資料更新會同時更新時間戳記。會讀取新的或者更新後的資料。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Incremental Mode With Incrementing and Timestamp Columns&lt;/p&gt;
+
+    &lt;p&gt;每一行數據都可以被對應到一個唯一的串流 offset。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Fri, 08 Oct 2021 00:00:00 +0000</pubDate>
+        <link>/%E6%8A%80%E8%A1%93/2021/10/08/kafka-connect-%E5%8E%9F%E4%BE%86%E6%98%AF%E4%BD%A0/</link>
+        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/10/08/kafka-connect-%E5%8E%9F%E4%BE%86%E6%98%AF%E4%BD%A0/</guid>
         
         
         <category>技術</category>
