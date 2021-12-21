@@ -11,28 +11,16 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="kafka 小白二三事（二） - ">
+    <meta property="og:title" content="HOME - ">
     
-    <meta property="og:type" content="article">
-    <meta property="og:description" content="通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
-每個 Kafka broker 都會到 ZooKeeper 註冊。
-
-建置 Kafka 環境和相關設定
-
-
-  選擇版本並從官網安裝 https://downloads.apache.org/kafka/
-  設定 listeners 服務器...">
-    
-    <meta property="article:published_time" content="2021-11-30T00:00:00Z">
-    
-    
-    
+    <meta property="og:type" content="website">
+    <meta property="og:description" content="">
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/">
+    <meta property="og:url" content="/article/page11/">
     <meta property="og:site_name" content="">
 
-    <title>kafka 小白二三事（二） - </title>
+    <title>HOME - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -41,7 +29,7 @@
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/">
+    <link rel="canonical" href="/article/page11/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -195,11 +183,7 @@
 </script>
 
 
-    <!-- Image to hack wechat -->
-<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
-<!-- <img src="/img/concretewall.jpg" width="0" height="0"> -->
-
-<!-- Post Header -->
+    <!-- Page Header -->
 
 
 
@@ -214,9 +198,9 @@
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">kafka 小白二三事（二）</h3>
+          <h3 id="intro-header-item">HOME</h3>
           <span class="subheading"></span>
-          <span class="meta">November 30, 2021</span>
+          <span class="meta"></span>
         </div>
       </div>
     </div>
@@ -225,156 +209,190 @@
 
 
 
-<!-- Post Content -->
-<article>
-    <div class="container">
-        <div class="row">
-
-    <!-- Post Container -->
-            <div class="
-                col-lg-8 col-lg-offset-2
-                col-md-10 col-md-offset-1
-                post-container">
-
-                <!-- Multi-Lingual -->
-                
-
-                <div id="app">
-                    <p>通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
-每個 Kafka broker 都會到 ZooKeeper 註冊。</p>
-
-<p>建置 Kafka 環境和相關設定</p>
-
-<ol>
-  <li>選擇版本並從官網安裝 https://downloads.apache.org/kafka/</li>
-  <li>設定 listeners 服務器真正 bind 的地址和 advertised.listeners，曝露給外部的 ip 地址，如果沒有設定的話會
-直接使用 listeners 。他們告訴 Kafka 的客戶端要用什麼協議，哪個 ip 地址去訪問 Kafka 服務。</li>
-</ol>
-
-<pre><code class="language-angular2html">e.g. 
-listeners=PLAINTEXT://HOSTNAME:PORT,SSL://HOSTNAME:PORT
-
-listeners=INSIDE://HOSTNAME:PORT,OUTSIDE://HOSTNAME:PORT
-listener.security.protocol.map=INSIDE:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
-
-P.S 
-PLAINTEXT 代表 listeners 會是不需要授權或者加密的。
-SASL_PLAINTEXT 代表需要 SASL 授權，但是不加密
-SASL_SSL 代表 SASL 授權且使用 SSL 加密通訊
-SSL 使用 SSL 加密通訊
-</code></pre>
-
-                </div>
-
-                <hr style="visibility: hidden;">
-                <ul class="pager">
-                    
-                    <li class="previous">
-                        <a href="/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/" data-toggle="tooltip" data-placement="top" title="kafka 小白二三事（一）">
-                        Previous<br>
-                        <span>kafka 小白二三事（一）</span>
-                        </a>
-                    </li>
-                    
-                    
-                    <li class="next">
-                        <a href="/%E6%8A%80%E8%A1%93/2021/12/04/Spark-application-with-Kerberos/" data-toggle="tooltip" data-placement="top" title="Spark Application with Kerberos - Intro">
-                        Next<br>
-                        <span>Spark Application with Kerberos - Intro</span>
-                        </a>
-                </li>
-                
-            </ul>
-            <hr style="visibility: hidden;">
-
-            
-            <!-- disqus 评论框 start -->
-            <div class="comment">
-                <div id="disqus_thread" class="disqus-thread"></div>
-            </div>
-            <!-- disqus 评论框 end -->
-            
-
-            
-        </div>
-
-    <!-- Side Catalog Container -->
+<!-- Main Content -->
+<div class="container">
+	<div class="row">
     
+    <!-- NO SIDEBAR -->
+    <!-- PostList Container -->
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
+<!--            <div id="app">-->
+                
+<!--<h1>0</h1>-->
+<!--<h1>0</h1>-->
+<!--<h1>0</h1>-->
+<!--<h1>0</h1>-->
 
-<!-- Sidebar Container -->
+
+<div class="post-preview">
+    <a href="/%E6%8A%80%E8%A1%93/2021/10/08/kafka-connect-%E5%8E%9F%E4%BE%86%E6%98%AF%E4%BD%A0/">
+        <h2 class="post-title">
+            kafka connect 原來是你
+        </h2>
+        
+        <h3 class="post-subtitle">
+            
+        </h3>
+        
+    </a>
+    <p class="post-meta">
+        October 8, 2021 &nbsp;|&nbsp;
+        约6分钟读完
+        大约1906个字
+
+        &nbsp;|&nbsp;&nbsp;
+        <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
+        
+        <!--        -->
+        <!--            &nbsp;|&nbsp;-->
+        <!--            <span class="tags tags-sup">-->
+        <!--            -->
+        <!--            </span>-->
+        <!--        -->
+    </p>
+    <div class="post-content-preview">
+        
+        <h3 id="-前情提要"># 前情提要</h3>
+
+<p>應用場景需要將插入 Oracle 資料庫的資料，用串流的方式寫入 Kafka，Oracle 官方提供的解決方案是 OCIS，Oracle
+Cloud Infrastructure Stream 裡面的 Kafka Connect Harness，沒有錯這是一個付費服務，估計是在原先開源 Kafka 
+Connect 對 Oracle 的支持上進行了優化，如果口袋沒有很深去嘗試使用它，真的就只能好好調研一下了。是說這篇是要介紹
+Kafka Connect的啦，趕快拉回正題。</p>
+
+<p>Kafka Connect 是一個介接其他數據庫和 Kafka 之間的串流工具，它繼承了 Kafka 的可擴展性(scalability)和高可靠性(reliably)
+。它可以接收整個數據庫，比如 Oracle，或者收集特定的指標，送到指定的 Kafka topic。</p>
+
+<p>REST API</p>
+
+<h3 id="-source-connector-modes"># Source Connector Modes</h3>
+
+<ul>
+  <li>
+    <p>bulk modes</p>
+
+    <p>整張表每次都重新讀一遍。</p>
+  </li>
+  <li>
+    <p>Incremental Mode With Incrementing Column</p>
+
+    <p>用一個遞增的欄位做辨別，只讀取新的資料。</p>
+  </li>
+  <li>
+    <p>Incremental Mode With Timestamp Column</p>
+
+    <p>用一個時間欄位當做 Kafka Connect 抓取資料的依據，並假設資料更新會同時更新時間戳記。會讀取新的或者更新後的資料。</p>
+  </li>
+  <li>
+    <p>Incremental Mode With Incrementing and Timestamp Columns</p>
+
+    <p>使得每一行數據都可以被對應到一個唯一的串流 offset，如此才能在 timestamp 欄位更新時候，將更新後的那行數據送到 Kafka。</p>
+  </li>
+</ul>
+
+<h3 id="-incrementing-column"># Incrementing Column</h3>
+
+<p>一個很好的問題是，遞增的欄位中可以有重複的欄位嗎？直覺反應是當然不行咯，但是官方介紹裡面也沒有寫的很明白，還是說 strictly
+(嚴格遞增的) 指的就是那個意思。很容易讓人產生疑問，是不是在預設每5秒在 sink 資料的時候，會把大於等於記錄的 offset 的所有數據
+，包括可能重複的數據，都取回來。測試的結果，Kafka connect 會把有重複 incrementing 欄位的數據取回來，只要那個欄位的值大於等於當前記錄的
+offset。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>incrementing: use a strictly incrementing column on each table to detect only new rows. Note that this will not detect modifications or deletions of existing rows.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>在 Oracle 中，想建立一個遞增欄位，不像 MySQL 一樣簡單添加 AUTO_INCREMENT 欄位關鍵字，或者 Postgres 使用 serial
+型態，可以簡單的解決。至少在 Oracle 11g 之前的版本都還是這樣的，在11g的版本前都要使用 Oracle 的 trigger 來達成。
+一直到 Oracle 12c，Oracle 的 identity 關鍵字才出來。</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="c1">-- reference https://stackoverflow.com/questions/11296361/how-to-create-id-with-auto-increment-on-oracle</span>
+<span class="c1">-- Table definition</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">departments</span> <span class="p">(</span>
+<span class="n">ID</span>           <span class="n">NUMBER</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>    <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+<span class="n">DESCRIPTION</span>  <span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>  <span class="k">NOT</span> <span class="k">NULL</span><span class="p">);</span>
+
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">departments</span> <span class="k">ADD</span> <span class="p">(</span>
+<span class="k">CONSTRAINT</span> <span class="n">dept_pk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">ID</span><span class="p">));</span>
+
+<span class="k">CREATE</span> <span class="n">SEQUENCE</span> <span class="n">dept_seq</span> <span class="k">START</span> <span class="k">WITH</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="c1">-- Oracle trigger for incrementing column</span>
+<span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">TRIGGER</span> <span class="n">dept_bir</span>
+<span class="k">BEFORE</span> <span class="k">INSERT</span> <span class="k">ON</span> <span class="n">departments</span>
+<span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span>
+
+<span class="k">BEGIN</span>
+<span class="k">SELECT</span> <span class="n">dept_seq</span><span class="p">.</span><span class="n">NEXTVAL</span>
+<span class="k">INTO</span>   <span class="p">:</span><span class="k">new</span><span class="p">.</span><span class="n">id</span>
+<span class="k">FROM</span>   <span class="n">dual</span><span class="p">;</span>
+<span class="k">END</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="-ora-02437-error-message"># ORA-02437 Error Message</h3>
+
+<p>但是，一個遞增的欄位裡面的值對於大型的交易系統，遲早會達到系統可以表示的最大的值，到時候就會開始噴錯了。合理來說，如果
+用時間戳來當這個遞增的欄位會比較好，但是如果交易頻率在每毫秒會同時有幾筆交易的話，就會產生重複的值。一個做法是，在插入
+的時候額外添加一個序號，表示是當前微秒的第幾筆交易，但是這樣就涉及到會要先查詢目前最大的序號是多少的情況。查詢緊接著插入，
+查詢到了未更新的最大序號值，導致會插入重複的值，發生錯誤。</p>
+
+        
+    </div>
+
+    <!-- capture tags for every article -->
+    
+    
+    <br/>
+
+    <hr/>
+    <!--  Posted by -->
+</div>
+
+
+<!-- Pager -->
+
+<ul class="pager">
+    
+    <li class="previous">
+        <a href="/article/page10/">&larr; Newer Posts</a>
+    </li>
+    
+    
+</ul>
+
+
+<!--            </div>-->
+        </div>
+        <!-- Sidebar Container -->
         <div class="
             col-lg-8 col-lg-offset-2
             col-md-10 col-md-offset-1
             sidebar-container">
 
-
         </div>
-    </div>
+    
+	</div>
 </div>
-</article>
 
-<!-- add support for mathjax by voleking-->
-
-
-
-
-
-
-    <script>
-        /**
-         *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-         *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
-        /*
-        var disqus_config = function () {
-        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-        };
-        */
-        var disqus_shortname = "williams-note";
-        (function() { // DON'T EDIT BELOW THIS LINE
-            var d = document, s = d.createElement('script');
-            s.src = 'https://' + 'williams-note' + '.disqus.com/embed.js';
-            s.setAttribute('data-timestamp', +new Date());
-            (d.head || d.body).appendChild(s);
-        })();
-    </script>
-
-
-
-
-    <!-- async load function -->
-    <script>
-        function async(u, c) {
-          var d = document, t = 'script',
-              o = d.createElement(t),
-              s = d.getElementsByTagName(t)[0];
-          o.src = u;
-          if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
-          s.parentNode.insertBefore(o, s);
-        }
-    </script>
-    <!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
-    <script>
-        async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
-            anchors.options = {
-              visible: 'hover',
-              placement: 'right',
-              // icon: '#'
-            };
-            anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
-        })
-    </script>
-    <style>
-        /* place left on bigger screen */
-        @media all and (min-width: 800px) {
-            .anchorjs-link{
-                position: absolute;
-                left: -0.75em;
-                font-size: 1.1em;
-                margin-top : -0.1em;
-            }
-        }
-    </style>
 
 
 

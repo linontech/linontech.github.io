@@ -116,6 +116,8 @@ Connect 對 Oracle 的支持上進行了優化，如果口袋沒有很深去嘗�
                     
                     
                     
+                    
+                    
                     <li>
                         <a href="/archive/">ARCHIVE</a>
                     </li>
@@ -245,6 +247,8 @@ Kafka Connect的啦，趕快拉回正題。</p>
 <p>Kafka Connect 是一個介接其他數據庫和 Kafka 之間的串流工具，它繼承了 Kafka 的可擴展性(scalability)和高可靠性(reliably)
 。它可以接收整個數據庫，比如 Oracle，或者收集特定的指標，送到指定的 Kafka topic。</p>
 
+<p>REST API</p>
+
 <h3 id="-source-connector-modes"># Source Connector Modes</h3>
 
 <ul>
@@ -266,9 +270,75 @@ Kafka Connect的啦，趕快拉回正題。</p>
   <li>
     <p>Incremental Mode With Incrementing and Timestamp Columns</p>
 
-    <p>每一行數據都可以被對應到一個唯一的串流 offset。</p>
+    <p>使得每一行數據都可以被對應到一個唯一的串流 offset，如此才能在 timestamp 欄位更新時候，將更新後的那行數據送到 Kafka。</p>
   </li>
 </ul>
+
+<h3 id="-incrementing-column"># Incrementing Column</h3>
+
+<p>一個很好的問題是，遞增的欄位中可以有重複的欄位嗎？直覺反應是當然不行咯，但是官方介紹裡面也沒有寫的很明白，還是說 strictly
+(嚴格遞增的) 指的就是那個意思。很容易讓人產生疑問，是不是在預設每5秒在 sink 資料的時候，會把大於等於記錄的 offset 的所有數據
+，包括可能重複的數據，都取回來。測試的結果，Kafka connect 會把有重複 incrementing 欄位的數據取回來，只要那個欄位的值大於等於當前記錄的
+offset。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>incrementing: use a strictly incrementing column on each table to detect only new rows. Note that this will not detect modifications or deletions of existing rows.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>在 Oracle 中，想建立一個遞增欄位，不像 MySQL 一樣簡單添加 AUTO_INCREMENT 欄位關鍵字，或者 Postgres 使用 serial
+型態，可以簡單的解決。至少在 Oracle 11g 之前的版本都還是這樣的，在11g的版本前都要使用 Oracle 的 trigger 來達成。
+一直到 Oracle 12c，Oracle 的 identity 關鍵字才出來。</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="c1">-- reference https://stackoverflow.com/questions/11296361/how-to-create-id-with-auto-increment-on-oracle</span>
+<span class="c1">-- Table definition</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">departments</span> <span class="p">(</span>
+<span class="n">ID</span>           <span class="n">NUMBER</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>    <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+<span class="n">DESCRIPTION</span>  <span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>  <span class="k">NOT</span> <span class="k">NULL</span><span class="p">);</span>
+
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">departments</span> <span class="k">ADD</span> <span class="p">(</span>
+<span class="k">CONSTRAINT</span> <span class="n">dept_pk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">ID</span><span class="p">));</span>
+
+<span class="k">CREATE</span> <span class="n">SEQUENCE</span> <span class="n">dept_seq</span> <span class="k">START</span> <span class="k">WITH</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="c1">-- Oracle trigger for incrementing column</span>
+<span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">TRIGGER</span> <span class="n">dept_bir</span>
+<span class="k">BEFORE</span> <span class="k">INSERT</span> <span class="k">ON</span> <span class="n">departments</span>
+<span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span>
+
+<span class="k">BEGIN</span>
+<span class="k">SELECT</span> <span class="n">dept_seq</span><span class="p">.</span><span class="n">NEXTVAL</span>
+<span class="k">INTO</span>   <span class="p">:</span><span class="k">new</span><span class="p">.</span><span class="n">id</span>
+<span class="k">FROM</span>   <span class="n">dual</span><span class="p">;</span>
+<span class="k">END</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="-ora-02437-error-message"># ORA-02437 Error Message</h3>
+
+<p>但是，一個遞增的欄位裡面的值對於大型的交易系統，遲早會達到系統可以表示的最大的值，到時候就會開始噴錯了。合理來說，如果
+用時間戳來當這個遞增的欄位會比較好，但是如果交易頻率在每毫秒會同時有幾筆交易的話，就會產生重複的值。一個做法是，在插入
+的時候額外添加一個序號，表示是當前微秒的第幾筆交易，但是這樣就涉及到會要先查詢目前最大的序號是多少的情況。查詢緊接著插入，
+查詢到了未更新的最大序號值，導致會插入重複的值，發生錯誤。</p>
 
                 </div>
 

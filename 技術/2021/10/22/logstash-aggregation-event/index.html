@@ -11,28 +11,27 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="kafka 小白二三事（二） - ">
+    <meta property="og:title" content="logstash aggregation events - ">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
-每個 Kafka broker 都會到 ZooKeeper 註冊。
+    <meta property="og:description" content="# 前情提要
 
-建置 Kafka 環境和相關設定
+前陣子為了監控Spark Structured Streaming的ETL處理時間和TPS等指標，使用logstash接收來自Kafka的event數據，透過Kafka的
+時間戳 CreateTime 來記錄資料處理時間，計算source Kafka topic的時間戳和sink端的 Kafka topic 的差值，可以得到這筆
+event在ETL的耗時。
 
-
-  選擇版本並從官網安裝 https://downloads.apache.org/kafka/
-  設定 listeners 服務器...">
+# Aggreg...">
     
-    <meta property="article:published_time" content="2021-11-30T00:00:00Z">
+    <meta property="article:published_time" content="2021-10-22T00:00:00Z">
     
     
     
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/">
+    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/10/22/logstash-aggregation-event/">
     <meta property="og:site_name" content="">
 
-    <title>kafka 小白二三事（二） - </title>
+    <title>logstash aggregation events - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -41,7 +40,7 @@
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/">
+    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2021/10/22/logstash-aggregation-event/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -214,9 +213,9 @@
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">kafka 小白二三事（二）</h3>
+          <h3 id="intro-header-item">logstash aggregation events</h3>
           <span class="subheading"></span>
-          <span class="meta">November 30, 2021</span>
+          <span class="meta">October 22, 2021</span>
         </div>
       </div>
     </div>
@@ -240,29 +239,41 @@
                 
 
                 <div id="app">
-                    <p>通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
-每個 Kafka broker 都會到 ZooKeeper 註冊。</p>
+                    <h3 id="-前情提要"># 前情提要</h3>
 
-<p>建置 Kafka 環境和相關設定</p>
+<p>前陣子為了監控Spark Structured Streaming的ETL處理時間和TPS等指標，使用logstash接收來自Kafka的event數據，透過Kafka的
+時間戳 CreateTime 來記錄資料處理時間，計算source Kafka topic的時間戳和sink端的 Kafka topic 的差值，可以得到這筆
+event在ETL的耗時。</p>
+
+<h3 id="-aggregation"># Aggregation</h3>
+
+<p>由於前端的事件進來Kafka並沒有一個唯一的key值做識別，所以在ETL處理的時候加入了 hash_id 針對整串資料包含時間戳記計算一個唯一值，
+讓它可以再後續更複雜的ETL中被識別，算是一個前處理操作。並且，因為需要匯總各個ETL部分的耗時，小小的研究了一下Logstash 聚合事件
+的功能的使用方式。可以想到的是，因為是即時串流的事件，資料在不斷的進來，我們幾乎不可能無限時間的等到所有相關的事件都進入 logstash
+之後才進行聚合，隨著資料量的增加，對記憶體等硬件的要求也會越來越高，處理效率也會越來越差。所以一個合理的timeout時間設定，或者
+合理的事件完成規則的定義就會非常重要了。</p>
+
+<p>logstash官方對兩種方式都有相關的範例可以參考，aggregation filter的目的是聚合屬於同一任務的多個事件，有對應到前情提要中的場景。
+官方舉例的一些應用場景有，</p>
 
 <ol>
-  <li>選擇版本並從官網安裝 https://downloads.apache.org/kafka/</li>
-  <li>設定 listeners 服務器真正 bind 的地址和 advertised.listeners，曝露給外部的 ip 地址，如果沒有設定的話會
-直接使用 listeners 。他們告訴 Kafka 的客戶端要用什麼協議，哪個 ip 地址去訪問 Kafka 服務。</li>
+  <li>任務對事件清楚定義了開始和結束的格式，比如TASK_START或者TASK_END等字樣。</li>
+  <li>沒有定義開始的任務</li>
+  <li>沒有定義結束的任務</li>
+  <li>沒有定義開始，也沒有定義結束</li>
+  <li>沒有定義結束事件，並且將事件在無相關活動狀態超時之後推送</li>
 </ol>
 
-<pre><code class="language-angular2html">e.g. 
-listeners=PLAINTEXT://HOSTNAME:PORT,SSL://HOSTNAME:PORT
+<h3 id="-logstash-filter-累加不正確的問題"># logstash filter 累加不正確的問題</h3>
 
-listeners=INSIDE://HOSTNAME:PORT,OUTSIDE://HOSTNAME:PORT
-listener.security.protocol.map=INSIDE:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
+<p>logstash對串流資料聚合的支持有一個限制，就是為了要聚合 events 只能使用一個 instance來處理資料，否則會出現奇怪的情況。在官方的
+aggregate plugin的文檔上寫表明，<code class="language-plaintext highlighter-rouge">You should be very careful to set Logstash filter workers to 1 (-w 1 flag) 
+for this filter to work correctly otherwise events may be processed out of sequence and unexpected results will occur.</code>
+在 pipeline.yml 中需對那個有聚合操作的設定檔，加入 pipeline.workers: 1 ，才能保證聚合插件的正常使用，否則可能會出現數字累加錯誤，
+或者事件未收齊就推送的現象。(<a href="https://www.elastic.co/guide/en/logstash/current/plugins-filters-aggregate.html">ref</a>)</p>
 
-P.S 
-PLAINTEXT 代表 listeners 會是不需要授權或者加密的。
-SASL_PLAINTEXT 代表需要 SASL 授權，但是不加密
-SASL_SSL 代表 SASL 授權且使用 SSL 加密通訊
-SSL 使用 SSL 加密通訊
-</code></pre>
+<p><a href="Pipeline.workers configuration and aggregation filter">這篇</a> 裡面也有說到相關的情況。好在<code class="language-plaintext highlighter-rouge">pipeline.workers</code>的預設值就是 1。
+所以對於不怎麼思考而是直接使用的人，有一定的防呆機制存在。</p>
 
                 </div>
 
@@ -270,17 +281,17 @@ SSL 使用 SSL 加密通訊
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/" data-toggle="tooltip" data-placement="top" title="kafka 小白二三事（一）">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/10/15/logstash-%E5%88%9D%E6%AC%A1%E8%A6%8B%E9%9D%A2/" data-toggle="tooltip" data-placement="top" title="logstash 初次見面">
                         Previous<br>
-                        <span>kafka 小白二三事（一）</span>
+                        <span>logstash 初次見面</span>
                         </a>
                     </li>
                     
                     
                     <li class="next">
-                        <a href="/%E6%8A%80%E8%A1%93/2021/12/04/Spark-application-with-Kerberos/" data-toggle="tooltip" data-placement="top" title="Spark Application with Kerberos - Intro">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/11/06/ELK-%E5%B0%8F%E7%99%BD%E8%A8%98%E9%8C%84/" data-toggle="tooltip" data-placement="top" title="ELK 小白記錄">
                         Next<br>
-                        <span>Spark Application with Kerberos - Intro</span>
+                        <span>ELK 小白記錄</span>
                         </a>
                 </li>
                 

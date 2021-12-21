@@ -107,6 +107,8 @@
                     
                     
                     
+                    
+                    
                     <li>
                         <a href="/archive/">ARCHIVE</a>
                     </li>
@@ -223,9 +225,9 @@
 
 
 <div class="post-preview">
-    <a href="/%E6%8A%80%E8%A1%93/2021/10/08/kafka-connect-%E5%8E%9F%E4%BE%86%E6%98%AF%E4%BD%A0/">
+    <a href="/%E6%8A%80%E8%A1%93/2021/10/15/logstash-%E5%88%9D%E6%AC%A1%E8%A6%8B%E9%9D%A2/">
         <h2 class="post-title">
-            kafka connect 原來是你
+            logstash 初次見面
         </h2>
         
         <h3 class="post-subtitle">
@@ -234,9 +236,9 @@
         
     </a>
     <p class="post-meta">
-        October 8, 2021 &nbsp;|&nbsp;
-        约2分钟读完
-        大约617个字
+        October 15, 2021 &nbsp;|&nbsp;
+        约4分钟读完
+        大约1148个字
 
         &nbsp;|&nbsp;&nbsp;
         <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
@@ -250,40 +252,99 @@
     </p>
     <div class="post-content-preview">
         
-        <h3 id="-前情提要"># 前情提要</h3>
+        <p>Logstash: Collect, Parse and Transform logs.</p>
 
-<p>應用場景需要將插入 Oracle 資料庫的資料，用串流的方式寫入 Kafka，Oracle 官方提供的解決方案是 OCIS，Oracle
-Cloud Infrastructure Stream 裡面的 Kafka Connect Harness，沒有錯這是一個付費服務，估計是在原先開源 Kafka 
-Connect 對 Oracle 的支持上進行了優化，如果口袋沒有很深去嘗試使用它，真的就只能好好調研一下了。是說這篇是要介紹
-Kafka Connect的啦，趕快拉回正題。</p>
+<p>Logstash 是一個用來做日誌收集，分析，過濾的工具。一開始就是見到了，
+logstash的資料流的設定檔案，名稱前面標示了數字，聽前說人檔案會按照 filename 字母順序組合，這在需要切分複雜設定的時候
+或許有些用，也要特別注意用條件來區分不同的資料流。但使用下來我還是覺得如果沒有需要幾千行的設定，那還是放在一個設定檔裡面就好了。</p>
 
-<p>Kafka Connect 是一個介接其他數據庫和 Kafka 之間的串流工具，它繼承了 Kafka 的可擴展性(scalability)和高可靠性(reliably)
-。它可以接收整個數據庫，比如 Oracle，或者收集特定的指標，送到指定的 Kafka topic。</p>
+<h3 id="-設定檔格式"># 設定檔格式</h3>
 
-<h3 id="-source-connector-modes"># Source Connector Modes</h3>
+<p>input, filter, output 的組成非常符合 Logstash 的人設。要特別說的是檔案裡面也是可以空行和寫注釋的，
+畢竟只是一個定義資料流的腳本，寫明白資料的來源格式和指定輸出格式，以及解析的方式還是很重要的。</p>
 
-<ul>
-  <li>
-    <p>bulk modes</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre>input { # comments can appear at the end of a line, too
+  http {
+    codec =&gt; json {
+      charset =&gt; "ISO-8859-1"
+      target =&gt; "[document]"
+    }
+  }
+}
 
-    <p>整張表每次都重新讀一遍。</p>
-  </li>
-  <li>
-    <p>Incremental Mode With Incrementing Column</p>
+filter {
+}
 
-    <p>用一個遞增的欄位做辨別，只讀取新的資料。</p>
-  </li>
-  <li>
-    <p>Incremental Mode With Timestamp Column</p>
+output {
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
 
-    <p>用一個時間欄位當做 Kafka Connect 抓取資料的依據，並假設資料更新會同時更新時間戳記。會讀取新的或者更新後的資料。</p>
-  </li>
-  <li>
-    <p>Incremental Mode With Incrementing and Timestamp Columns</p>
+<h3 id="-常用的-plugin"># 常用的 plugin</h3>
 
-    <p>每一行數據都可以被對應到一個唯一的串流 offset。</p>
-  </li>
-</ul>
+<h4 id="codec">codec</h4>
+
+<p>codec 表示編解碼插件，可以按照約定好的格式將數據讀進來logstash。例如直接將json字符串格式的資料定義為key value的格式。
+一些常見的編解碼插件如下，</p>
+
+<p>(1) json
+(2) csv
+(3) protobuf</p>
+
+<p>Google Protocol Buffer 是一種輕便高效的結構化存儲數據的格式。</p>
+
+<p>(4) multiline</p>
+
+<p>Collapse multiline messages and merge them into a single event. 例如，當你需要將任何一行不是以時間戳記
+開頭的字符串合併到它的上一行，就可以很方便的使用這個 codec。官方給的實現方式如下，</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>    input {
+      file {
+        path =&gt; "/var/log/someapp.log"
+        codec =&gt; multiline {
+          # Grok pattern names are valid! :)
+          pattern =&gt; "^%{TIMESTAMP_ISO8601} "
+          negate =&gt; true
+          what =&gt; "previous"
+        }
+      }
+    }
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>(5) rubydebug</p>
+
+<p>輸出時使用，通常會用在 debug 的時候。它能將logstash的事件用Ruby Amazing Print library的格式輸出。</p>
+
+<h4 id="grok">grok</h4>
+
+<p>grok 是一個 filter 插件，負責把收到的數據，以使用者自定義的正則處理，讓數據變成使用者想要的鍵值對的格式。</p>
+
+<p>特別的，由於日誌通常很長一串又格式複雜，於是 <a href="https://grokdebug.herokuapp.com">Grok Debugger Tool</a> 就出現了，
+可以直接透過這個小工具來檢查自己的解析語法是否match到所有自己想要的欄位。</p>
 
         
     </div>
@@ -306,6 +367,10 @@ Kafka Connect的啦，趕快拉回正題。</p>
         <a href="/article/page9/">&larr; Newer Posts</a>
     </li>
     
+    
+    <li class="next">
+        <a href="/article/page11/">Older Posts &rarr;</a>
+    </li>
     
 </ul>
 
