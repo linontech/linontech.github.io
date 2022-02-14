@@ -16,7 +16,6 @@ Kafka Connect的啦，趕快拉回正題。
 Kafka Connect 是一個介接其他數據庫和 Kafka 之間的串流工具，它繼承了 Kafka 的可擴展性(scalability)和高可靠性(reliably)
 。它可以接收整個數據庫，比如 Oracle，或者收集特定的指標，送到指定的 Kafka topic。
 
-REST API
 
 ### # Source Connector Modes
 
@@ -45,7 +44,8 @@ REST API
 offset。
 
 ```
-incrementing: use a strictly incrementing column on each table to detect only new rows. Note that this will not detect modifications or deletions of existing rows.
+incrementing: use a strictly incrementing column on each table to detect only new rows. Note that this will
+ not detect modifications or deletions of existing rows.
 ```
 
 在 Oracle 中，想建立一個遞增欄位，不像 MySQL 一樣簡單添加 AUTO_INCREMENT 欄位關鍵字，或者 Postgres 使用 serial
