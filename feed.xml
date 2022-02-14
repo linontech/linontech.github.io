@@ -5,15 +5,199 @@
     <description></description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 21 Dec 2021 15:51:10 +0000</pubDate>
-    <lastBuildDate>Tue, 21 Dec 2021 15:51:10 +0000</lastBuildDate>
+    <pubDate>Mon, 14 Feb 2022 14:10:24 +0000</pubDate>
+    <lastBuildDate>Mon, 14 Feb 2022 14:10:24 +0000</lastBuildDate>
     <generator>Jekyll v4.1.1</generator>
     
       <item>
-        <title>記一次HDFS_DELEGATION_TOKEN過期的問題</title>
-        <description>&lt;p&gt;TL;DR&lt;/p&gt;
+        <title>資料倉儲歷史</title>
+        <description>&lt;h2 id=&quot;mpp-小歷史&quot;&gt;MPP 小歷史&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/HDFS-9276&quot;&gt;HDFS-9276&lt;/a&gt;, &lt;a href=&quot;https://github.com/apache/spark/pull/9168&quot;&gt;SPARK-11182&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;MPP(Massively Parallel Processing)，大規模並行處理，指的是將任務分散到多個節點上，各自計算完成後在合併結果。當談論到
+MPP的時候，我們一般指的都是分佈式數據庫(MPP RDBMS)，例如 Teradata。為了能將節點們各自獨立並能更好的拓展性能，MPP 架構
+採用 shared-nothing 的概念，不共享存儲和計算資源。資料也以sharding的方式儲存在各個節點。&lt;/p&gt;
+
+&lt;p&gt;Hadoop 被設計成從單個服務器擴展到數千臺，每臺機器(節點)都提供本地計算和存儲。
+Hadoop 本身的設計目的不是依靠硬體來提供高可用性，而是在應用層檢測和處理故障，從而在節點上提供高可用性服務，
+每個節點都可能發生故障。它包括 Hadoop Common，Hadoop Distributed File System(hdfs)，Hadoop YARN，Hadoop
+MapReduce。工作場合上，Hadoop 常常被拿來和 MPP RDBMS 比較，&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;MPP RDBMS 只能處理結構化數據，而 Hadoop 則處理的大部分是非結構化資料。當然 Hadoop也處理結構化資料，Hive就是 Hadoop
+生態圈的資料倉儲解決方案。&lt;/li&gt;
+  &lt;li&gt;Hadoop以資料塊(block)的方式儲存數據，預設的大小是 128MB，比作業系統裡面的塊概念要大很多(作業系統塊大小是 4KB)，
+可以根據實際需求修改 HDFS 塊大小的設定。而 RDBMS 則是將資料保存在本地的 file system 上，並根據不同大小的 page size
+設定 (4k, 8k, 16k…)，會有不同的欄位個數或資料大小限制。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Spark&lt;/p&gt;
+
+&lt;p&gt;資料倉儲理論和Spark的架構
+SPARK与具体存储解耦，采用的是与shared-nothing MPP数据库不同的“计算与存储分离”的架构，可提供更具弹性的部署方式，
+既能独立部署运行，也能够与HDFS集成。&lt;/p&gt;
+
+&lt;h3&gt;#&lt;/h3&gt;
+
+&lt;h3 id=&quot;-1&quot;&gt;#&lt;/h3&gt;
+
+&lt;h3 id=&quot;-reference&quot;&gt;# Reference&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;https://cloud.tencent.com/developer/article/1544733&quot;&gt;Hadoop vs MPP&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.gushiciku.cn/pl/a2vN/zh-hk&quot;&gt;MPP架構與Hadoop架構是一回事嗎？&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://medium.com/@jockeyng/hadoop與mpp是什麼關係-有什麼區別和聯繫-afb4397e12a1&quot;&gt;Hadoop與MPP是什麼關係?有什麼區別和聯繫?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://toutiao.io/posts/2a9ayg/preview&quot;&gt;MPP 的进化：深入理解 Batch 和 MPP 优缺点&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/pulse/hadoop-vs-rdbms-storage-performance-design-gautam-prothia&quot;&gt;https://www.linkedin.com/pulse/hadoop-vs-rdbms-storage-performance-design-gautam-prothia&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.yinxiang.com/everhub/note/4e0c04c8-1167-4c3e-8c1d-52307f782745&quot;&gt;数据平台发展简史 - 从“shared-nothing MPP”到云上“Multi-Cluster shared-data”&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://blog.csdn.net/flyinthesky111/article/details/113558863&quot;&gt;浅谈Hadoop体系和MPP体系&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.zhihu.com/question/27589901&quot;&gt;mpp架构是什么？它与各种sql on hadoop架构根本区别在那里，优点和缺点是什么？求专业人士赐教？&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://mentalmodels4life.net/2016/08/14/apache-spark-vs-mpp-databases/&quot;&gt;Apache Spark vs MPP Databases&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://saintbacchus.github.io/2019/06/14/并行计算模式/&quot;&gt;并行计算模式&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Tue, 25 Jan 2022 00:00:00 +0000</pubDate>
+        <link>/%E6%8A%80%E8%A1%93/2022/01/25/%E8%B3%87%E6%96%99%E5%80%89%E5%84%B2%E6%AD%B7%E5%8F%B2/</link>
+        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2022/01/25/%E8%B3%87%E6%96%99%E5%80%89%E5%84%B2%E6%AD%B7%E5%8F%B2/</guid>
+        
+        
+        <category>技術</category>
+        
+      </item>
+    
+      <item>
+        <title>Elasticsearch Removal Of Mapping Types</title>
+        <description>&lt;p&gt;–
+layout: post
+title: “ElasticSearch Removal of mapping types”
+subtitle: “”
+date: 2021-12-30
+categories: [技術]
+—&lt;/p&gt;
+
+&lt;p&gt;正好遇到舊叢集升版本，當然 ElasticSearch 的版本也升級了，從 6.1 升級到了 7.13，導致原來有些程式的邏輯需要更新。
+其中有一個就是 ElasticSearch 索引中的每個文檔不再接受一個自己定義的 mapping type (_type) 了，所有的document的
+預設的 mapping type 都是 _doc，並且也不需要一個欄位來特別表示了。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Before 7.0.0, the mapping definition included a type name. Elasticsearch 7.0.0 and later no longer 
+accept a default mapping.&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;-tldr&quot;&gt;# TL;DR&lt;/h3&gt;
+
+&lt;p&gt;好處&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;將有不同schema的資料儲存在同一個索引中，可能會導致資料太稀疏或者干擾到Lucene壓縮資料的效能;&lt;/li&gt;
+  &lt;li&gt;獨立的索引，可以避免一個相同field名稱，但是卻需要有不同資料類型的囧境發生，因為一個索引裡面的相同名字的欄位的
+資料型態必須要是一致的;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;如果還是需要類似原來一個 document mapping types 的功能，可以嘗試下面幾種做法:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;一個索引裡面都是相同的 document type，簡單來說就是把索引涵蓋的資料範圍縮小;&lt;/li&gt;
+  &lt;li&gt;或者自己模擬一個 type 欄位，這個方法會使得在一個索引裡面有不同 schema 的資料;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;在7.0.0版本之前的 ElasticSearch 如果要模擬文檔之間的一對多 Parent/Child 關係，會在同一個index裡面定義兩個自定義
+ mapping type ，分別表示 parent 和 child。但是如果把 _doc 欄位砍掉，Parent/Child 關係就不能這樣子建立了。所以，
+就有了新的 join 類型的欄位出現。&lt;/p&gt;
+
+&lt;h3 id=&quot;-reference&quot;&gt;# Reference&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://godleon.github.io/blog/Elasticsearch/Elasticsearch-getting-started/&quot;&gt;小信豬的原始部落&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html&quot;&gt;Removal of mapping types&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Thu, 30 Dec 2021 00:00:00 +0000</pubDate>
+        <link>/2021/12/30/ElasticSearch-Removal-of-mapping-types/</link>
+        <guid isPermaLink="true">/2021/12/30/ElasticSearch-Removal-of-mapping-types/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Spark程式在獲取Kerberos ticket</title>
+        <description>&lt;p&gt;最近盤點在Hadoop叢集上跑的Spark批次程式，&lt;del&gt;你才會發現有些東西放在那邊遲早有一天會臭掉&lt;/del&gt;，如果沒有寫下來也不會知道這些
+程式是怎麼取得Kerberos認證的。因為在執行一些運行時間較長的 Spark ETL 任務的時候會遇到 Kerberos token 的認證過期，
+所以才會有這篇文章想要弄清楚 Spark 取得 Kerberos 認證的來龍去脈。具體碰到的情況是HDFS_DELEGATION_TOKEN在Spark
+應用程式執行的第7天就會過期，但經過排除這個只是 Hadoop 的一個bug， 只要把 Hadoop 更新到 2.9 之後的版本就不會有問題了，
+在另外一篇文章有提到。
+所以基本上會需要排除找 Spark Application 的 Kerberos token 過期時間和前面這個問題之間的關係，問題混在一起完全會抓不到重點。&lt;/p&gt;
+
+&lt;h3 id=&quot;-spark-application-with-kerberos&quot;&gt;# Spark Application with Kerberos&lt;/h3&gt;
+
+&lt;p&gt;查找資料後，發現 Spark 應用程式在執行的時候
+會根據下面 3 個文件和 Kerberos KDC server 交互取得在 Hadoop 叢集上執行任務的認證。所以，Spark 應用程式取得的token
+的有效期限到底是多長？以及Spark會自動根據使用者指定的Kerberos keytab位置，和特定的 principle，keytab去更新 token 嗎？&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Spark Application eats Kerberos credential cache (KRB5CCNAME) 
+KRB5CCNAME environment variable must be set by your Java, it’s set automatically after logon to the
+credential cache file. It’s default path is /tmp/krb5cc_$(id -u)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;krb5.conf 儲存 kdc 服務器的相關配置。By default, krb5.conf should be in the same directory on every
+host in your cluster, the default location is /etc/krb5.conf , or you should specify by setting 
+spark.driver.extraJavaOptions and spark.executor.extraJavaOptions, 
+with -Djava.security.krb5.conf=/path/to/krb5.conf&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;keytab，用于存储资源主体的身份验证凭据，它可以包含principals和它們對應的加密principal key&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;另外，Spark 獲取的 Kerberos token最長有效期限是，由下面五個設定的最小值決定。上面的幾個不同地方的設定的名稱如下，
+實踐上也確實符合預期，把前面幾個設定值得大小都調大之後 kinit 還是無法獲得較長時間的 maximum renewable life，
+還是需要調整 krbtgt 的 max lifetime。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-angular2html&quot;&gt;
+1. kinit -l 10h -r 7d, 舉例而言，一個 maximum ticket life 10小時，maximum renewable life 7 天的 ticket；
+2. /etc/krb5.conf, ticket_lifetime
+3. Principal 的 maximum ticket life time
+4. kerberos Server上, /var/kerberos/krb5kdc/kdc.conf 設定 max_life 
+5. (Microsoft) krbtgt 帳號的 max lifetime
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;-reference&quot;&gt;# Reference&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://www.ibm.com/docs/en/spectrum-conductor/2.5.1?topic=group-submitting-spark-batch-applications-kerberos-authentication&quot;&gt;Submitting Spark batch applications with Kerberos authentication
+&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://github.com/LucaCanali/Miscellaneous/blob/master/Spark_Notes/Spark_Executors_Kerberos_HowTo.md&quot;&gt;HowTo: Enable Spark executors to access Kerberized resources
+&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://stackoverflow.com/questions/14682153/lifetime-of-kerberos-tickets&quot;&gt;Lifetime of Kerberos tickets&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://www.twblogs.net/a/5b885ca02b71775d1cdbeed1&quot;&gt;Kerberos ticket lifetime-大數據姐姐&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://help.aliyun.com/document_detail/256357.htm&quot;&gt;配置Kerberos认证&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Thu, 23 Dec 2021 00:00:00 +0000</pubDate>
+        <link>/%E6%8A%80%E8%A1%93/2021/12/23/Spark%E7%A8%8B%E5%BC%8F%E5%9C%A8%E7%8D%B2%E5%8F%96Kerberos-ticket/</link>
+        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/12/23/Spark%E7%A8%8B%E5%BC%8F%E5%9C%A8%E7%8D%B2%E5%8F%96Kerberos-ticket/</guid>
+        
+        
+        <category>技術</category>
+        
+      </item>
+    
+      <item>
+        <title>記一次HDFS_DELEGATION_TOKEN過期的問題</title>
+        <description>&lt;p&gt;TL;DR &lt;a href=&quot;https://issues.apache.org/jira/browse/HDFS-9276&quot;&gt;HDFS-9276&lt;/a&gt;, &lt;a href=&quot;https://github.com/apache/spark/pull/9168&quot;&gt;SPARK-11182&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;最近開發的Spark Streaming串流程式每七天就會報下面這串 Exception，起初也不以為意覺得是Hadoop叢集的問題，
 後來觀察日誌才發現它是每七天就會出現一次，讓程式 crash 掉的問題。可以理解為，每七天Spark的HDFS_DELEGATION_TOKEN
@@ -42,7 +226,7 @@ namenode token)。reference: &lt;a href=&quot;https://www.codenong.com/cs1061924
 
 &lt;p&gt;解決方法根據 &lt;a href=&quot;https://github.com/apache/spark/pull/9168&quot;&gt;SPARK-11182&lt;/a&gt; 裡面提到的， 可能的方式：&lt;/p&gt;
 
-&lt;p&gt;(1) 更新 Hadoop 的版本到 2.9.0 或以上。（然而我們的版本是 2.6.0，更新的可能性不大）&lt;/p&gt;
+&lt;p&gt;(1) 更新 Hadoop 的版本到 2.9.0 或以上。（然而我們的版本是 2.6.0，更新的可能性也不大）&lt;/p&gt;
 
 &lt;p&gt;(2) 調整dfs.namenode.delegation.token.max-lifetime 等於一個較大的值，使得 token 最大生命週期變長，從而滿足使用者需要。&lt;/p&gt;
 
@@ -73,7 +257,7 @@ Structured Streaming 程式以更新 token。&lt;/p&gt;
 服務器 (Authenticate Server)，一個票證授權服務器 (Ticket-Granting Server)，以及一個記錄他所知道的 principles
 和它們的 Kerberos 密碼的內建資料庫。&lt;/p&gt;
 
-&lt;h4 id=&quot;principle&quot;&gt;Principle&lt;/h4&gt;
+&lt;h3 id=&quot;-principle&quot;&gt;# Principle&lt;/h3&gt;
 
 &lt;p&gt;一個 Kerberos principle 長得像，&lt;/p&gt;
 
@@ -85,7 +269,7 @@ Structured Streaming 程式以更新 token。&lt;/p&gt;
 比如 ap 帳號，也可以是Hadoop服務的Unix帳號，比如 hdfs。instance 是用來區分單個 user 的多個 principle 時使用。
 realm 類似 DNS 中的域，不同的是 DNS 是定義了一組主機名，而 realm 則是定義了一組相關的 principle。&lt;/p&gt;
 
-&lt;h4 id=&quot;keytab&quot;&gt;Keytab&lt;/h4&gt;
+&lt;h3 id=&quot;-keytab&quot;&gt;# Keytab&lt;/h3&gt;
 
 &lt;p&gt;Keytab 包含了加密的principle鍵值和對應的 Kerberos principle。 它被用來在驗證一個 Kerberos principle，
 而不用人為得敲打密碼或者明碼保存密碼了。&lt;/p&gt;
@@ -94,19 +278,26 @@ realm 類似 DNS 中的域，不同的是 DNS 是定義了一組主機名，而 
 You can use a keytab file to authenticate to various remote systems using Kerberos without entering a password.
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h4 id=&quot;ticket-granting-ticket-tgt&quot;&gt;Ticket-Granting ticket TGT&lt;/h4&gt;
+&lt;h3 id=&quot;-ticket-granting-ticket-tgt&quot;&gt;# Ticket-Granting ticket TGT&lt;/h3&gt;
 &lt;p&gt;由 KDC 中的 Authenticate Server頒發的票證，使用者帶著這個票證可以向 Server 端請求相應的服務。&lt;/p&gt;
 
-&lt;h4 id=&quot;ccache-credential-cache&quot;&gt;ccache (Credential Cache)&lt;/h4&gt;
+&lt;h3 id=&quot;-ccache-credential-cache&quot;&gt;# ccache (Credential Cache)&lt;/h3&gt;
 &lt;p&gt;Credential Cache 也是 Kerberos 驗證身份的一種方式，它持有Kerberos的憑證，使得使用者所執行任務session還有效時，
 多次驗證服務器，而不用一直請求 KDC 服務器。&lt;/p&gt;
 
-&lt;h3 id=&quot;long-running-spark-application-with-kerberos&quot;&gt;Long-running Spark Application with Kerberos&lt;/h3&gt;
+&lt;h3 id=&quot;-long-running-spark-application-with-kerberos&quot;&gt;# Long-running Spark Application with Kerberos&lt;/h3&gt;
 
 &lt;p&gt;對於一個 Spark Streaming 服務，只要在 spark submit 指令後面加上 –keytab 和 –principle 兩個參數，
 Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation token 和 login ticket。&lt;/p&gt;
 
-&lt;h3 id=&quot;kafka-with-a-kerberos-ticket-cache&quot;&gt;Kafka with a Kerberos Ticket Cache&lt;/h3&gt;
+&lt;h4 id=&quot;reference&quot;&gt;Reference&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;https://mkuthan.github.io/blog/2016/09/30/spark-streaming-on-yarn/&quot;&gt;Long-running Spark Streaming jobs on YARN cluster&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://flume.cn/2016/11/24/Spark踩坑之Streaming在Kerberos的hadoop中renew失敗/值&quot;&gt;Spark踩坑之Streaming在Kerberos的hadoop中renew失敗&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;-kafka-with-a-kerberos-ticket-cache&quot;&gt;# Kafka with a Kerberos Ticket Cache&lt;/h3&gt;
 
 &lt;p&gt;如果你的 Spark Streaming 任務的串流資料來自於 Kafka，別忘了在 worker node 上面，由於 kafka 的 Kerberos 認證 
 也會需要的 keytab 會需要送到 worker node 上面，否則會認證失敗。&lt;/p&gt;
@@ -133,6 +324,8 @@ Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation tok
 };
 &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
+&lt;h3 id=&quot;-kerberos---maximum-renewable-lifetime-for-kerberos-ticket&quot;&gt;# Kerberos - Maximum renewable lifetime for Kerberos Ticket&lt;/h3&gt;
+
 &lt;p&gt;Reference&lt;/p&gt;
 &lt;ol&gt;
   &lt;li&gt;&lt;a href=&quot;https://spark.apache.org/docs/2.4.6/running-on-yarn.html#yarn-specific-kerberos-configuration&quot;&gt;Running Spark on YARN&lt;/a&gt;&lt;/li&gt;
@@ -141,110 +334,6 @@ Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation tok
         <pubDate>Sat, 04 Dec 2021 00:00:00 +0000</pubDate>
         <link>/%E6%8A%80%E8%A1%93/2021/12/04/Spark-application-with-Kerberos/</link>
         <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/12/04/Spark-application-with-Kerberos/</guid>
-        
-        
-        <category>技術</category>
-        
-      </item>
-    
-      <item>
-        <title>kafka 小白二三事（二）</title>
-        <description>&lt;p&gt;通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
-每個 Kafka broker 都會到 ZooKeeper 註冊。&lt;/p&gt;
-
-&lt;p&gt;建置 Kafka 環境和相關設定&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;選擇版本並從官網安裝 https://downloads.apache.org/kafka/&lt;/li&gt;
-  &lt;li&gt;設定 listeners 服務器真正 bind 的地址和 advertised.listeners，曝露給外部的 ip 地址，如果沒有設定的話會
-直接使用 listeners 。他們告訴 Kafka 的客戶端要用什麼協議，哪個 ip 地址去訪問 Kafka 服務。&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;pre&gt;&lt;code class=&quot;language-angular2html&quot;&gt;e.g. 
-listeners=PLAINTEXT://HOSTNAME:PORT,SSL://HOSTNAME:PORT
-
-listeners=INSIDE://HOSTNAME:PORT,OUTSIDE://HOSTNAME:PORT
-listener.security.protocol.map=INSIDE:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
-
-P.S 
-PLAINTEXT 代表 listeners 會是不需要授權或者加密的。
-SASL_PLAINTEXT 代表需要 SASL 授權，但是不加密
-SASL_SSL 代表 SASL 授權且使用 SSL 加密通訊
-SSL 使用 SSL 加密通訊
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-        <pubDate>Tue, 30 Nov 2021 00:00:00 +0000</pubDate>
-        <link>/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/</link>
-        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/</guid>
-        
-        
-        <category>技術</category>
-        
-      </item>
-    
-      <item>
-        <title>kafka 小白二三事（一）</title>
-        <description>&lt;p&gt;Kafka，分佈式、高吞吐量、高擴展性消息隊列系統。是一個被廣為使用的消息隊列中間件。常用來異步處理請求、
-流量削峰、日誌處理、解耦業務處理過程。。等等。&lt;/p&gt;
-
-&lt;p&gt;生產消息 Producer，消費者 Consumer, Consumer Group，兩端業務邏輯被解耦一個負責生產數據，另一個就是單純
-把數據接收下來，並且由 Consumer Group去記錄對應某個 Topic 目前信息接收到第幾條了 (offset)。這些生產者和
-消費者彼此之間除了約定 Schema 之外沒有直接的關聯，生產者和消費者的吃飯的傢伙事活動都由 kafka broker 負責。
-可以說一個 kafka broker 就是一個 kafka ，多個 kafka broker 就會組成一個 kafka 集群。&lt;/p&gt;
-
-&lt;p&gt;名詞解釋&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Event&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;每個在 Kafka 內保存的資料可以視為一個事件，一個事件包含了鍵 key，值 value，時間戳 timestamp。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Topic&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;區分不同消息的放置位置和，好比 table name。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Partition&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;分區，這裡的概念基本上和 ElasticSearch 上的分片概念是一樣的。都是想把數據合理的放在不同 server 的分區上面，以達到
-負載均衡。特別要注意的是，每個分區存儲的數據都是有序的，但是不同分區間的數據不保證有序性。若有保證有序，
-那就只能設置一個分區。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Replica&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;副本，kafka 為了防止服務器壞掉採取的措施。需要注意的是不同分區的備份存放的是不同部分的數據，也就是如果沒有備份整個
-kafka 集群就無法備份 kafka topic 的所有的分區。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Broker&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Broker 指運行 Kafka 的機器。多個 Broker 就組成 Kafka 集群。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Controller (Leader Broker)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Kafka controller 是一個 Kafka集群的頭腦部分，一個Kafka集群只能有一個 Controller，那個節點就和一般的broker無異，
-只是多負責管理整個集群中所有分區和副本的狀態，比如 broker server 的上線、下線處理，創建/刪除 topic，處理每個 topic 的分區副本分配，以及 leader 
-的選舉，等等。&lt;/p&gt;
-
-&lt;p&gt;提到 Controller 就感覺還會需要科普學習一下下 zookeeper。官方文件寫到，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services. &lt;/code&gt;
-至少在 2021 年之前他對於 kafka都扮演重要的角色。 Kafka 保存了很多重要的元數據在 zookeeper，比如 kafka topic 的基本資訊，分區、副本等資訊，以及 broker 信息和ISR（In-Sync Replicas）等等。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;ISR (In-Sync-replicas)&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-        <pubDate>Tue, 23 Nov 2021 00:00:00 +0000</pubDate>
-        <link>/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/</link>
-        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/11/23/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%B8%80/</guid>
         
         
         <category>技術</category>
@@ -430,7 +519,7 @@ join來串接，ElasticSearch 通常會用使用sub document的方式。 此外�
       </item>
     
       <item>
-        <title>logstash aggregation events</title>
+        <title>logstash聚合同任務的多個事件</title>
         <description>&lt;h3 id=&quot;-前情提要&quot;&gt;# 前情提要&lt;/h3&gt;
 
 &lt;p&gt;前陣子為了監控Spark Structured Streaming的ETL處理時間和TPS等指標，使用logstash接收來自Kafka的event數據，透過Kafka的
@@ -459,7 +548,7 @@ event在ETL的耗時。&lt;/p&gt;
 &lt;h3 id=&quot;-logstash-filter-累加不正確的問題&quot;&gt;# logstash filter 累加不正確的問題&lt;/h3&gt;
 
 &lt;p&gt;logstash對串流資料聚合的支持有一個限制，就是為了要聚合 events 只能使用一個 instance來處理資料，否則會出現奇怪的情況。在官方的
-aggregate plugin的文檔上寫表明，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;You should be very careful to set Logstash filter workers to 1 (-w 1 flag) 
+aggregate plugin的文檔上寫道，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;You should be very careful to set Logstash filter workers to 1 (-w 1 flag) 
 for this filter to work correctly otherwise events may be processed out of sequence and unexpected results will occur.&lt;/code&gt;
 在 pipeline.yml 中需對那個有聚合操作的設定檔，加入 pipeline.workers: 1 ，才能保證聚合插件的正常使用，否則可能會出現數字累加錯誤，
 或者事件未收齊就推送的現象。(&lt;a href=&quot;https://www.elastic.co/guide/en/logstash/current/plugins-filters-aggregate.html&quot;&gt;ref&lt;/a&gt;)&lt;/p&gt;
@@ -468,113 +557,8 @@ for this filter to work correctly otherwise events may be processed out of seque
 所以對於不怎麼思考而是直接使用的人，有一定的防呆機制存在。&lt;/p&gt;
 </description>
         <pubDate>Fri, 22 Oct 2021 00:00:00 +0000</pubDate>
-        <link>/%E6%8A%80%E8%A1%93/2021/10/22/logstash-aggregation-event/</link>
-        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/10/22/logstash-aggregation-event/</guid>
-        
-        
-        <category>技術</category>
-        
-      </item>
-    
-      <item>
-        <title>logstash 初次見面</title>
-        <description>&lt;p&gt;Logstash: Collect, Parse and Transform logs.&lt;/p&gt;
-
-&lt;p&gt;Logstash 是一個用來做日誌收集，分析，過濾的工具。一開始就是見到了，
-logstash的資料流的設定檔案，名稱前面標示了數字，聽前說人檔案會按照 filename 字母順序組合，這在需要切分複雜設定的時候
-或許有些用，也要特別注意用條件來區分不同的資料流。但使用下來我還是覺得如果沒有需要幾千行的設定，那還是放在一個設定檔裡面就好了。&lt;/p&gt;
-
-&lt;h3 id=&quot;-設定檔格式&quot;&gt;# 設定檔格式&lt;/h3&gt;
-
-&lt;p&gt;input, filter, output 的組成非常符合 Logstash 的人設。要特別說的是檔案裡面也是可以空行和寫注釋的，
-畢竟只是一個定義資料流的腳本，寫明白資料的來源格式和指定輸出格式，以及解析的方式還是很重要的。&lt;/p&gt;
-
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;input { # comments can appear at the end of a line, too
-  http {
-    codec =&amp;gt; json {
-      charset =&amp;gt; &quot;ISO-8859-1&quot;
-      target =&amp;gt; &quot;[document]&quot;
-    }
-  }
-}
-
-filter {
-}
-
-output {
-}
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h3 id=&quot;-常用的-plugin&quot;&gt;# 常用的 plugin&lt;/h3&gt;
-
-&lt;h4 id=&quot;codec&quot;&gt;codec&lt;/h4&gt;
-
-&lt;p&gt;codec 表示編解碼插件，可以按照約定好的格式將數據讀進來logstash。例如直接將json字符串格式的資料定義為key value的格式。
-一些常見的編解碼插件如下，&lt;/p&gt;
-
-&lt;p&gt;(1) json
-(2) csv
-(3) protobuf&lt;/p&gt;
-
-&lt;p&gt;Google Protocol Buffer 是一種輕便高效的結構化存儲數據的格式。&lt;/p&gt;
-
-&lt;p&gt;(4) multiline&lt;/p&gt;
-
-&lt;p&gt;Collapse multiline messages and merge them into a single event. 例如，當你需要將任何一行不是以時間戳記
-開頭的字符串合併到它的上一行，就可以很方便的使用這個 codec。官方給的實現方式如下，&lt;/p&gt;
-
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;    input {
-      file {
-        path =&amp;gt; &quot;/var/log/someapp.log&quot;
-        codec =&amp;gt; multiline {
-          # Grok pattern names are valid! :)
-          pattern =&amp;gt; &quot;^%{TIMESTAMP_ISO8601} &quot;
-          negate =&amp;gt; true
-          what =&amp;gt; &quot;previous&quot;
-        }
-      }
-    }
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;(5) rubydebug&lt;/p&gt;
-
-&lt;p&gt;輸出時使用，通常會用在 debug 的時候。它能將logstash的事件用Ruby Amazing Print library的格式輸出。&lt;/p&gt;
-
-&lt;h4 id=&quot;grok&quot;&gt;grok&lt;/h4&gt;
-
-&lt;p&gt;grok 是一個 filter 插件，負責把收到的數據，以使用者自定義的正則處理，讓數據變成使用者想要的鍵值對的格式。&lt;/p&gt;
-
-&lt;p&gt;特別的，由於日誌通常很長一串又格式複雜，於是 &lt;a href=&quot;https://grokdebug.herokuapp.com&quot;&gt;Grok Debugger Tool&lt;/a&gt; 就出現了，
-可以直接透過這個小工具來檢查自己的解析語法是否match到所有自己想要的欄位。&lt;/p&gt;
-</description>
-        <pubDate>Fri, 15 Oct 2021 00:00:00 +0000</pubDate>
-        <link>/%E6%8A%80%E8%A1%93/2021/10/15/logstash-%E5%88%9D%E6%AC%A1%E8%A6%8B%E9%9D%A2/</link>
-        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/10/15/logstash-%E5%88%9D%E6%AC%A1%E8%A6%8B%E9%9D%A2/</guid>
+        <link>/%E6%8A%80%E8%A1%93/2021/10/22/logstash%E8%81%9A%E5%90%88%E5%90%8C%E4%BB%BB%E5%8B%99%E7%9A%84%E5%A4%9A%E5%80%8B%E4%BA%8B%E4%BB%B6/</link>
+        <guid isPermaLink="true">/%E6%8A%80%E8%A1%93/2021/10/22/logstash%E8%81%9A%E5%90%88%E5%90%8C%E4%BB%BB%E5%8B%99%E7%9A%84%E5%A4%9A%E5%80%8B%E4%BA%8B%E4%BB%B6/</guid>
         
         
         <category>技術</category>

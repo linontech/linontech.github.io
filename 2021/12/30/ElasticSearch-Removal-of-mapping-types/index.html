@@ -11,16 +11,30 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="ABOUT - ">
+    <meta property="og:title" content="Elasticsearch Removal Of Mapping Types - ">
     
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="–
+layout: post
+title: “ElasticSearch Removal of mapping types”
+subtitle: “”
+date: 2021-12-30
+categories: [技術]
+—
+
+正好遇到舊叢集升版本，當然 ElasticSearch 的版本也升級了，從 6.1 升級到了 7.13，導致原來有些程式的邏輯需要更新。
+其中有一個就是 Elastic...">
+    
+    <meta property="article:published_time" content="2021-12-30T00:00:00Z">
+    
+    
+    
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/about/">
+    <meta property="og:url" content="/2021/12/30/ElasticSearch-Removal-of-mapping-types/">
     <meta property="og:site_name" content="">
 
-    <title>ABOUT - </title>
+    <title>Elasticsearch Removal Of Mapping Types - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -29,7 +43,7 @@
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/about/">
+    <link rel="canonical" href="/2021/12/30/ElasticSearch-Removal-of-mapping-types/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -191,7 +205,11 @@
 </script>
 
 
-    <!-- Page Header -->
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/concretewall.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
 
 
 
@@ -206,9 +224,9 @@
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">ABOUT</h3>
+          <h3 id="intro-header-item">Elasticsearch Removal Of Mapping Types</h3>
           <span class="subheading"></span>
-          <span class="meta"></span>
+          <span class="meta">December 30, 2021</span>
         </div>
       </div>
     </div>
@@ -217,39 +235,122 @@
 
 
 
-<!-- Main Content -->
-<div class="container">
-	<div class="row">
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+                <div id="app">
+                    <p>–
+layout: post
+title: “ElasticSearch Removal of mapping types”
+subtitle: “”
+date: 2021-12-30
+categories: [技術]
+—</p>
+
+<p>正好遇到舊叢集升版本，當然 ElasticSearch 的版本也升級了，從 6.1 升級到了 7.13，導致原來有些程式的邏輯需要更新。
+其中有一個就是 ElasticSearch 索引中的每個文檔不再接受一個自己定義的 mapping type (_type) 了，所有的document的
+預設的 mapping type 都是 _doc，並且也不需要一個欄位來特別表示了。</p>
+
+<p><code class="language-plaintext highlighter-rouge">Before 7.0.0, the mapping definition included a type name. Elasticsearch 7.0.0 and later no longer 
+accept a default mapping.</code></p>
+
+<h3 id="-tldr"># TL;DR</h3>
+
+<p>好處</p>
+<ol>
+  <li>將有不同schema的資料儲存在同一個索引中，可能會導致資料太稀疏或者干擾到Lucene壓縮資料的效能;</li>
+  <li>獨立的索引，可以避免一個相同field名稱，但是卻需要有不同資料類型的囧境發生，因為一個索引裡面的相同名字的欄位的
+資料型態必須要是一致的;</li>
+</ol>
+
+<p>如果還是需要類似原來一個 document mapping types 的功能，可以嘗試下面幾種做法:</p>
+
+<ol>
+  <li>一個索引裡面都是相同的 document type，簡單來說就是把索引涵蓋的資料範圍縮小;</li>
+  <li>或者自己模擬一個 type 欄位，這個方法會使得在一個索引裡面有不同 schema 的資料;</li>
+</ol>
+
+<p>在7.0.0版本之前的 ElasticSearch 如果要模擬文檔之間的一對多 Parent/Child 關係，會在同一個index裡面定義兩個自定義
+ mapping type ，分別表示 parent 和 child。但是如果把 _doc 欄位砍掉，Parent/Child 關係就不能這樣子建立了。所以，
+就有了新的 join 類型的欄位出現。</p>
+
+<h3 id="-reference"># Reference</h3>
+
+<ol>
+  <li>
+    <p><a href="https://godleon.github.io/blog/Elasticsearch/Elasticsearch-getting-started/">小信豬的原始部落</a></p>
+  </li>
+  <li>
+    <p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html">Removal of mapping types</a></p>
+  </li>
+</ol>
+
+                </div>
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/12/23/Spark%E7%A8%8B%E5%BC%8F%E5%9C%A8%E7%8D%B2%E5%8F%96Kerberos-ticket/" data-toggle="tooltip" data-placement="top" title="Spark程式在獲取Kerberos ticket">
+                        Previous<br>
+                        <span>Spark程式在獲取Kerberos ticket</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/%E6%8A%80%E8%A1%93/2022/01/25/%E8%B3%87%E6%96%99%E5%80%89%E5%84%B2%E6%AD%B7%E5%8F%B2/" data-toggle="tooltip" data-placement="top" title="資料倉儲歷史">
+                        Next<br>
+                        <span>資料倉儲歷史</span>
+                        </a>
+                </li>
+                
+            </ul>
+            <hr style="visibility: hidden;">
+
+            
+            <!-- disqus 评论框 start -->
+            <div class="comment">
+                <div id="disqus_thread" class="disqus-thread"></div>
+            </div>
+            <!-- disqus 评论框 end -->
+            
+
+            
+        </div>
+
+    <!-- Side Catalog Container -->
     
-    <!-- NO SIDEBAR -->
-    <!-- PostList Container -->
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
-<!--            <div id="app">-->
-                  <!-- Language Selector -->
-  <select class="sel-lang" onchange="onLanChange(this.options[this.options.selectedIndex].value)">
-      <option value="0" selected> 中文 | Chinese </option>
-      <option value="1"> 英文 | English </option>
-  </select>
+
+<!-- Sidebar Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            sidebar-container">
 
 
-<!-- Chinese Version -->
-<div class="zh post-container">
-    
-    
-<p>這是一個使用 Jekyll + Vue.js 的框架，利用 vue.js 中的 b-pagination 實現了翻頁的功能。</p>
-
+        </div>
+    </div>
 </div>
+</article>
 
-<!-- English Version -->
-<div class="en post-container">
-    
-    
-<p>This is a blog mix Jekyll and Vue.js. components/Pagination.vue implements pagination feature by b-pagination plugin.</p>
-
-</div>
+<!-- add support for mathjax by voleking-->
 
 
-<div id="disqus_thread"></div>
+
+
+
 
     <script>
         /**
@@ -271,19 +372,41 @@
     </script>
 
 
-<!--            </div>-->
-        </div>
-        <!-- Sidebar Container -->
-        <div class="
-            col-lg-8 col-lg-offset-2
-            col-md-10 col-md-offset-1
-            sidebar-container">
 
-        </div>
-    
-	</div>
-</div>
 
+    <!-- async load function -->
+    <script>
+        function async(u, c) {
+          var d = document, t = 'script',
+              o = d.createElement(t),
+              s = d.getElementsByTagName(t)[0];
+          o.src = u;
+          if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+          s.parentNode.insertBefore(o, s);
+        }
+    </script>
+    <!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+    <script>
+        async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+            anchors.options = {
+              visible: 'hover',
+              placement: 'right',
+              // icon: '#'
+            };
+            anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+        })
+    </script>
+    <style>
+        /* place left on bigger screen */
+        @media all and (min-width: 800px) {
+            .anchorjs-link{
+                position: absolute;
+                left: -0.75em;
+                font-size: 1.1em;
+                margin-top : -0.1em;
+            }
+        }
+    </style>
 
 
 
@@ -376,58 +499,6 @@
 
 
 <!-- Multi-Lingual -->
-
-<!-- Handle Language Change -->
-<script type="text/javascript">
-    // get nodes
-    var $zh = document.querySelector(".zh");
-    var $en = document.querySelector(".en");
-    var $select = document.querySelector("select");
-
-    // Changes at v1.8.1: include lang flag as a url query. This interop well with catalog hash anchors.
-    function getLang() { return new URLSearchParams(document.location.search).get("lang") }
-
-    function setLang(newLang) {
-        var params = new URLSearchParams(document.location.search)
-        params.set("lang", newLang)
-        document.location.search = params.toString()  // refresh.
-    }
-
-    // handle render
-    function _render(){
-        var lang = getLang()
-        // en
-        if(lang == "en"){
-            $select.selectedIndex = 1;
-            $en.style.display = "block";
-            $en.classList.add("active");
-            $zh.style.display = "none";
-            $zh.classList.remove("active");
-        // default to zh-cn
-        }else{
-            $select.selectedIndex = 0;
-            $zh.style.display = "block";
-            $zh.classList.add("active");
-            $en.style.display = "none";
-            $en.classList.remove("active");
-        }
-        // interop with catalog
-        if ("") generateCatalog(".catalog-body");
-    }
-
-    // handle select change
-    function onLanChange(index){
-        if(index == 0){
-            lang = "zh"
-        }else{
-            lang = "en"
-        }
-        setLang(lang)
-    }
-
-    // init
-    _render();
-</script>
 
 
 

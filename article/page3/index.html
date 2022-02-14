@@ -109,6 +109,14 @@
                     
                     
                     
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     <li>
                         <a href="/archive/">ARCHIVE</a>
                     </li>
@@ -225,9 +233,9 @@
 
 
 <div class="post-preview">
-    <a href="/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/">
+    <a href="/%E6%8A%80%E8%A1%93/2021/12/23/Spark%E7%A8%8B%E5%BC%8F%E5%9C%A8%E7%8D%B2%E5%8F%96Kerberos-ticket/">
         <h2 class="post-title">
-            kafka 小白二三事（二）
+            Spark程式在獲取Kerberos ticket
         </h2>
         
         <h3 class="post-subtitle">
@@ -236,9 +244,9 @@
         
     </a>
     <p class="post-meta">
-        November 30, 2021 &nbsp;|&nbsp;
-        约2分钟读完
-        大约564个字
+        December 23, 2021 &nbsp;|&nbsp;
+        约5分钟读完
+        大约1639个字
 
         &nbsp;|&nbsp;&nbsp;
         <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
@@ -252,29 +260,70 @@
     </p>
     <div class="post-content-preview">
         
-        <p>通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
-每個 Kafka broker 都會到 ZooKeeper 註冊。</p>
+        <p>最近盤點在Hadoop叢集上跑的Spark批次程式，<del>你才會發現有些東西放在那邊遲早有一天會臭掉</del>，如果沒有寫下來也不會知道這些
+程式是怎麼取得Kerberos認證的。因為在執行一些運行時間較長的 Spark ETL 任務的時候會遇到 Kerberos token 的認證過期，
+所以才會有這篇文章想要弄清楚 Spark 取得 Kerberos 認證的來龍去脈。具體碰到的情況是HDFS_DELEGATION_TOKEN在Spark
+應用程式執行的第7天就會過期，但經過排除這個只是 Hadoop 的一個bug， 只要把 Hadoop 更新到 2.9 之後的版本就不會有問題了，
+在另外一篇文章有提到。
+所以基本上會需要排除找 Spark Application 的 Kerberos token 過期時間和前面這個問題之間的關係，問題混在一起完全會抓不到重點。</p>
 
-<p>建置 Kafka 環境和相關設定</p>
+<h3 id="-spark-application-with-kerberos"># Spark Application with Kerberos</h3>
+
+<p>查找資料後，發現 Spark 應用程式在執行的時候
+會根據下面 3 個文件和 Kerberos KDC server 交互取得在 Hadoop 叢集上執行任務的認證。所以，Spark 應用程式取得的token
+的有效期限到底是多長？以及Spark會自動根據使用者指定的Kerberos keytab位置，和特定的 principle，keytab去更新 token 嗎？</p>
+
+<ul>
+  <li>
+    <p>Spark Application eats Kerberos credential cache (KRB5CCNAME) 
+KRB5CCNAME environment variable must be set by your Java, it’s set automatically after logon to the
+credential cache file. It’s default path is /tmp/krb5cc_$(id -u)</p>
+  </li>
+  <li>
+    <p>krb5.conf 儲存 kdc 服務器的相關配置。By default, krb5.conf should be in the same directory on every
+host in your cluster, the default location is /etc/krb5.conf , or you should specify by setting 
+spark.driver.extraJavaOptions and spark.executor.extraJavaOptions, 
+with -Djava.security.krb5.conf=/path/to/krb5.conf</p>
+  </li>
+  <li>
+    <p>keytab，用于存储资源主体的身份验证凭据，它可以包含principals和它們對應的加密principal key</p>
+  </li>
+</ul>
+
+<p>另外，Spark 獲取的 Kerberos token最長有效期限是，由下面五個設定的最小值決定。上面的幾個不同地方的設定的名稱如下，
+實踐上也確實符合預期，把前面幾個設定值得大小都調大之後 kinit 還是無法獲得較長時間的 maximum renewable life，
+還是需要調整 krbtgt 的 max lifetime。</p>
+
+<pre><code class="language-angular2html">
+1. kinit -l 10h -r 7d, 舉例而言，一個 maximum ticket life 10小時，maximum renewable life 7 天的 ticket；
+2. /etc/krb5.conf, ticket_lifetime
+3. Principal 的 maximum ticket life time
+4. kerberos Server上, /var/kerberos/krb5kdc/kdc.conf 設定 max_life 
+5. (Microsoft) krbtgt 帳號的 max lifetime
+
+</code></pre>
+
+<h3 id="-reference"># Reference</h3>
 
 <ol>
-  <li>選擇版本並從官網安裝 https://downloads.apache.org/kafka/</li>
-  <li>設定 listeners 服務器真正 bind 的地址和 advertised.listeners，曝露給外部的 ip 地址，如果沒有設定的話會
-直接使用 listeners 。他們告訴 Kafka 的客戶端要用什麼協議，哪個 ip 地址去訪問 Kafka 服務。</li>
+  <li>
+    <p><a href="https://www.ibm.com/docs/en/spectrum-conductor/2.5.1?topic=group-submitting-spark-batch-applications-kerberos-authentication">Submitting Spark batch applications with Kerberos authentication
+</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/LucaCanali/Miscellaneous/blob/master/Spark_Notes/Spark_Executors_Kerberos_HowTo.md">HowTo: Enable Spark executors to access Kerberized resources
+</a></p>
+  </li>
+  <li>
+    <p><a href="https://stackoverflow.com/questions/14682153/lifetime-of-kerberos-tickets">Lifetime of Kerberos tickets</a></p>
+  </li>
+  <li>
+    <p><a href="https://www.twblogs.net/a/5b885ca02b71775d1cdbeed1">Kerberos ticket lifetime-大數據姐姐</a></p>
+  </li>
+  <li>
+    <p><a href="https://help.aliyun.com/document_detail/256357.htm">配置Kerberos认证</a></p>
+  </li>
 </ol>
-
-<pre><code class="language-angular2html">e.g. 
-listeners=PLAINTEXT://HOSTNAME:PORT,SSL://HOSTNAME:PORT
-
-listeners=INSIDE://HOSTNAME:PORT,OUTSIDE://HOSTNAME:PORT
-listener.security.protocol.map=INSIDE:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
-
-P.S 
-PLAINTEXT 代表 listeners 會是不需要授權或者加密的。
-SASL_PLAINTEXT 代表需要 SASL 授權，但是不加密
-SASL_SSL 代表 SASL 授權且使用 SSL 加密通訊
-SSL 使用 SSL 加密通訊
-</code></pre>
 
         
     </div>
@@ -327,7 +376,7 @@ SSL 使用 SSL 加密通訊
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <p class="copyright text-muted">
-                    Copyright &copy;  2021
+                    Copyright &copy;  2022
                     <span id="htmer_time" style=""></span>
                     <br>
                     Powered by Huxpro, Jekyll, Maintained By <a href="https://github.com/will1227">William Lin</a>

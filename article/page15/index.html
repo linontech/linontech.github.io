@@ -11,16 +11,16 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="ABOUT - ">
+    <meta property="og:title" content="HOME - ">
     
     <meta property="og:type" content="website">
     <meta property="og:description" content="">
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/about/">
+    <meta property="og:url" content="/article/page15/">
     <meta property="og:site_name" content="">
 
-    <title>ABOUT - </title>
+    <title>HOME - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -29,7 +29,7 @@
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/about/">
+    <link rel="canonical" href="/article/page15/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -206,7 +206,7 @@
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">ABOUT</h3>
+          <h3 id="intro-header-item">HOME</h3>
           <span class="subheading"></span>
           <span class="meta"></span>
         </div>
@@ -225,50 +225,205 @@
     <!-- PostList Container -->
         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
 <!--            <div id="app">-->
-                  <!-- Language Selector -->
-  <select class="sel-lang" onchange="onLanChange(this.options[this.options.selectedIndex].value)">
-      <option value="0" selected> 中文 | Chinese </option>
-      <option value="1"> 英文 | English </option>
-  </select>
+                
+<!--<h1>0</h1>-->
+<!--<h1>0</h1>-->
+<!--<h1>0</h1>-->
+<!--<h1>0</h1>-->
 
 
-<!-- Chinese Version -->
-<div class="zh post-container">
+<div class="post-preview">
+    <a href="/%E6%8A%80%E8%A1%93/2021/09/05/Kafka/">
+        <h2 class="post-title">
+            Kafka!
+        </h2>
+        
+        <h3 class="post-subtitle">
+            
+        </h3>
+        
+    </a>
+    <p class="post-meta">
+        September 5, 2021 &nbsp;|&nbsp;
+        约11分钟读完
+        大约3539个字
+
+        &nbsp;|&nbsp;&nbsp;
+        <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
+        
+        <!--        -->
+        <!--            &nbsp;|&nbsp;-->
+        <!--            <span class="tags tags-sup">-->
+        <!--            -->
+        <!--            </span>-->
+        <!--        -->
+    </p>
+    <div class="post-content-preview">
+        
+        <p>[TOC]</p>
+
+<h2 id="table-of-kafka">Table of Kafka</h2>
+
+<ol>
+  <li>Kafka 基本介紹</li>
+  <li>Kafka 名詞解釋</li>
+  <li>建置 Kafka 環境和相關設定</li>
+  <li>Kafka 生態圈</li>
+  <li>How to parallelize Consumer ?</li>
+</ol>
+
+<h2 id="kafka-基本介紹">Kafka 基本介紹</h2>
+
+<p>Kafka 是Linkedin公司開始後來由Apache基金會開發的一個分佈式，支持多分區、多副本的資料流處理平台，他同時也是一個基於
+發佈和訂閱的消息隊列系統。常用來異步處理請求、流量削峰、日誌處理、解耦業務處理過程。。等等。它基於Java和Scala語言開發。
+它的一些流處理(Stream processing capabilities)特性：</p>
+
+<ul>
+  <li>高吞吐 低延遲：Kafka 的最大的優點就是收發消息特別快，每秒可以處理幾十萬比數據</li>
+  <li>高並發 可拓展性：Kafka 是分佈式系統 distributed system，可以彈性縮放所需的資源，處理不同場景的串流數據。一個 topic 
+可以有多個分區，分佈在不同的 broker 上。多個 partition 可以讓多個客戶端同時讀寫。</li>
+  <li>資料持久化 可靠性：Kafka 可以將數據持久化存儲，數據被保存成 bytearray 的格式，並在 consume 的時候在被反序列化成
+可讀的格式(string, json, …)</li>
+  <li>容錯性：Kafka 提供了三種 delivery guarantees: At most once, At least once, Exactly once</li>
+</ul>
+
+<p>生產消息的 Producer，和消費者 Consumer/Consumer Group，兩端業務邏輯被解耦：一個負責生產數據，另一個就是單純
+把數據接收下來，並且由 Consumer Group去記錄對應某個 Topic 目前信息接收到第幾條了(offset)。這些生產者和
+消費者彼此之間除了約定 Schema 之外沒有直接的關聯，生產者和消費者的活動都由 kafka broker 負責。
+可以說一個 kafka broker 就是一個 kafka ，多個 kafka broker 就會組成一個 kafka 集群。</p>
+
+<h2 id="名詞解釋">名詞解釋</h2>
+
+<ul>
+  <li>
+    <p>Event: 每個在 Kafka 內保存的資料可以視為一個事件，一個事件包含了鍵 key，值 value，時間戳 timestamp。</p>
+  </li>
+  <li>
+    <p>Topic: 區分不同消息的放置位置和，好比 table name。</p>
+  </li>
+  <li>
+    <p>Partition: 分區，這裡的概念基本上和 ElasticSearch 上的分片概念是一樣的。都是想把數據合理的放在不同 server 的分區上面，
+以達到負載均衡。特別要注意的是，每個分區存儲的數據都是有序的，但是不同分區間的數據不保證有序性。若有保證有序，
+那就只能設置一個分區。</p>
+  </li>
+  <li>
+    <p>Replica: 副本，kafka 為了防止服務器壞掉採取的措施。需要注意的是不同分區的備份存放的是不同部分的數據，也就是如果沒有備份整個
+kafka 集群就無法備份 kafka topic 的所有的分區。</p>
+  </li>
+  <li>
+    <p>Broker: Broker 指運行 Kafka 的機器。多個 Broker 就組成 Kafka 集群。</p>
+  </li>
+  <li>
+    <p>Controller(Leader Broker): Kafka controller 是一個 Kafka集群的頭腦部分，一個Kafka集群只能有一個 Controller，那個節點就和一般的broker無異，
+只是多負責管理整個集群中所有分區和副本的狀態，比如 broker server 的上線、下線處理，創建/刪除 topic，處理每個 topic 的分區副本分配，以及 leader
+的選舉，等等。</p>
+  </li>
+  <li>
+    <p>Zookeeper</p>
+  </li>
+</ul>
+
+<p>提到 Controller 就感覺還會需要科普學習一下下 zookeeper。官方文件寫到，
+<code class="language-plaintext highlighter-rouge">ZooKeeper is a centralized service for maintaining configuration information, naming,
+ providing distributed synchronization, and providing group services. </code>
+至少在 2021 年之前他對於 kafka都扮演重要的角色。 
+Kafka 保存了很多重要的元數據在 zookeeper，比如 kafka topic 的基本資訊，分區、副本等資訊，
+以及 broker 信息和ISR（In-Sync Replicas）等等。</p>
+
+<ul>
+  <li>
+    <p>ISR (In-Sync-replicas): Isr 表示目前 in-sync 的 replicas，如果目前 broker 的連接及運作均正常，Isr 就等同於 replicas。可以在 topic 的
+describe 資訊中確認。</p>
+  </li>
+  <li>
+    <p>Offset: 記錄每個 consumer group 在每個 kafka topic 的每個分區的索引。
+<code class="language-plaintext highlighter-rouge">offset is an indexed maintained at __consumer_offset topic for each consumer group id, topic name and partition number.</code></p>
+  </li>
+  <li>
+    <p>Consumer group: 將 Consumer 註冊在指定的 group id 下，那他就會被分配到一個 consumer group，同一個 group 
+裡面的 consumer 不會收到相同的資料。</p>
+  </li>
+  <li>
+    <p>Lag: consumer group 的未讀新消息數量。</p>
+  </li>
+</ul>
+
+<h2 id="建置-kafka-環境和相關設定">建置 Kafka 環境和相關設定</h2>
+
+<p>通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
+每個 Kafka broker 都會到 ZooKeeper 註冊。</p>
+
+<ol>
+  <li>選擇版本並從官網安裝 https://downloads.apache.org/kafka/</li>
+  <li>設定 listeners 服務器真正 bind 的地址和 advertised.listeners，曝露給外部的 ip 地址，如果沒有設定的話會
+直接使用 listeners 。他們告訴 Kafka 的客戶端要用什麼協議，哪個 ip 地址去訪問 Kafka 服務。</li>
+</ol>
+
+<pre><code class="language-angular2html">e.g. 
+listeners=PLAINTEXT://HOSTNAME:PORT,SSL://HOSTNAME:PORT
+
+listeners=INSIDE://HOSTNAME:PORT,OUTSIDE://HOSTNAME:PORT
+listener.security.protocol.map=INSIDE:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
+
+P.S 
+PLAINTEXT 代表 listeners 不需要授權或者加密
+SASL_PLAINTEXT 代表需要 SASL 授權，但是不加密
+SASL_SSL 代表 SASL 授權且使用 SSL 加密通訊
+SSL 使用 SSL 加密通訊
+</code></pre>
+
+<h2 id="kafka-生態圈">Kafka 生態圈</h2>
+
+<p>Kafka Stream: 從 Apache Kafka 0.10 版本開始引入的一個 [feature]
+(https://kafka.apache.org/0102/javadoc/index.html?org/apache/kafka/streams/KafkaStreams.html)。
+他是用於流計算的lib，和 Spark Streaming，Storm，Flink 等類似。</p>
+
+<p>Kafka Connect: 一個介接其他數據庫和 Kafka 之間的串流工具，它繼承了 Kafka 的可擴展性(scalability)和高可靠性(reliably)
+。它可以接收整個數據庫，比如 Oracle，或者收集特定的指標，送到指定的 Kafka topic。</p>
+
+<h2 id="how-to-parallelize-kafka-consumer-">How to Parallelize Kafka Consumer ?</h2>
+
+<p>使用 Kafka 設定資料流時最常會遇到的問題，即要如何設定 kafka topic 的分區數和備份個數，以及要使用多少個 consumer
+去讀取資料才能最佳化資料流性能？這篇<a href="https://medium.com/@jhansireddy007/how-to-parallelise-kakfa-consumers-59c8b0bbc37a">文章</a>
+裡有淺顯易懂的舉例。在同一個 consumer group 裡面的兩個 consumer 不會分配到一個 kafka topic 的同一個 partition。
+同理，一份資料不會被一個 consumer group 裡面的多個 consumer 處理。</p>
+
+<p>如果有一個 consumer group 裡有4個 consumer 對應某個 kafka topic 的四個 partition。此時，再新加入一個 consumer
+將不會優化並行處理的性能，新加入的 consumer 會是 idle 的狀態。一個 consumer 可以分配到多個 partition，但是一個 partition
+不能分配給多個 consumer。Kafka partition 只在同一個 consumer group 裡的多個 consumer 間分配。
+<code class="language-plaintext highlighter-rouge">Kafka can’t assign the same partition to two consumers within the same group.</code> 所以 consumer group 裡的
+最佳 consumer 個數就是一個 kafka topic 的分區個數。</p>
+
+<h2 id="reference">Reference</h2>
+
+<ol>
+  <li><a href="https://www.oreilly.com/library/view/kafka-the-definitive/9781491936153/ch04.html">Kafka Consumers: Reading Data From Kafka</a></li>
+  <li><a href="https://medium.com/@jhansireddy007/how-to-parallelise-kafka-consumers-59c8b0bbc37a">How to parallelise Kafka consumers</a></li>
+</ol>
+
+        
+    </div>
+
+    <!-- capture tags for every article -->
     
     
-<p>這是一個使用 Jekyll + Vue.js 的框架，利用 vue.js 中的 b-pagination 實現了翻頁的功能。</p>
+    <br/>
 
+    <hr/>
+    <!--  Posted by -->
 </div>
 
-<!-- English Version -->
-<div class="en post-container">
+
+<!-- Pager -->
+
+<ul class="pager">
+    
+    <li class="previous">
+        <a href="/article/page14/">&larr; Newer Posts</a>
+    </li>
     
     
-<p>This is a blog mix Jekyll and Vue.js. components/Pagination.vue implements pagination feature by b-pagination plugin.</p>
-
-</div>
-
-
-<div id="disqus_thread"></div>
-
-    <script>
-        /**
-         *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-         *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
-        /*
-        var disqus_config = function () {
-        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-        };
-        */
-        var disqus_shortname = "williams-note";
-        (function() { // DON'T EDIT BELOW THIS LINE
-            var d = document, s = d.createElement('script');
-            s.src = 'https://' + 'williams-note' + '.disqus.com/embed.js';
-            s.setAttribute('data-timestamp', +new Date());
-            (d.head || d.body).appendChild(s);
-        })();
-    </script>
+</ul>
 
 
 <!--            </div>-->
@@ -376,58 +531,6 @@
 
 
 <!-- Multi-Lingual -->
-
-<!-- Handle Language Change -->
-<script type="text/javascript">
-    // get nodes
-    var $zh = document.querySelector(".zh");
-    var $en = document.querySelector(".en");
-    var $select = document.querySelector("select");
-
-    // Changes at v1.8.1: include lang flag as a url query. This interop well with catalog hash anchors.
-    function getLang() { return new URLSearchParams(document.location.search).get("lang") }
-
-    function setLang(newLang) {
-        var params = new URLSearchParams(document.location.search)
-        params.set("lang", newLang)
-        document.location.search = params.toString()  // refresh.
-    }
-
-    // handle render
-    function _render(){
-        var lang = getLang()
-        // en
-        if(lang == "en"){
-            $select.selectedIndex = 1;
-            $en.style.display = "block";
-            $en.classList.add("active");
-            $zh.style.display = "none";
-            $zh.classList.remove("active");
-        // default to zh-cn
-        }else{
-            $select.selectedIndex = 0;
-            $zh.style.display = "block";
-            $zh.classList.add("active");
-            $en.style.display = "none";
-            $en.classList.remove("active");
-        }
-        // interop with catalog
-        if ("") generateCatalog(".catalog-body");
-    }
-
-    // handle select change
-    function onLanChange(index){
-        if(index == 0){
-            lang = "zh"
-        }else{
-            lang = "en"
-        }
-        setLang(lang)
-    }
-
-    // init
-    _render();
-</script>
 
 
 

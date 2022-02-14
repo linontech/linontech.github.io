@@ -109,6 +109,14 @@
                     
                     
                     
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     <li>
                         <a href="/archive/">ARCHIVE</a>
                     </li>
@@ -225,9 +233,9 @@
 
 
 <div class="post-preview">
-    <a href="/%E6%8A%80%E8%A1%93/2021/12/09/%E8%A8%98%E4%B8%80%E6%AC%A1HDFS_DELEGATION_TOKEN%E9%81%8E%E6%9C%9F%E7%9A%84%E5%95%8F%E9%A1%8C/">
+    <a href="/%E6%8A%80%E8%A1%93/2022/01/25/%E8%B3%87%E6%96%99%E5%80%89%E5%84%B2%E6%AD%B7%E5%8F%B2/">
         <h2 class="post-title">
-            記一次HDFS_DELEGATION_TOKEN過期的問題
+            資料倉儲歷史
         </h2>
         
         <h3 class="post-subtitle">
@@ -236,9 +244,9 @@
         
     </a>
     <p class="post-meta">
-        December 9, 2021 &nbsp;|&nbsp;
-        约5分钟读完
-        大约1624个字
+        January 25, 2022 &nbsp;|&nbsp;
+        约4分钟读完
+        大约1106个字
 
         &nbsp;|&nbsp;&nbsp;
         <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
@@ -252,51 +260,48 @@
     </p>
     <div class="post-content-preview">
         
-        <p>TL;DR</p>
+        <h2 id="mpp-小歷史">MPP 小歷史</h2>
 
-<p><a href="https://issues.apache.org/jira/browse/HDFS-9276">HDFS-9276</a>, <a href="https://github.com/apache/spark/pull/9168">SPARK-11182</a></p>
+<p>MPP(Massively Parallel Processing)，大規模並行處理，指的是將任務分散到多個節點上，各自計算完成後在合併結果。當談論到
+MPP的時候，我們一般指的都是分佈式數據庫(MPP RDBMS)，例如 Teradata。為了能將節點們各自獨立並能更好的拓展性能，MPP 架構
+採用 shared-nothing 的概念，不共享存儲和計算資源。資料也以sharding的方式儲存在各個節點。</p>
 
-<p>最近開發的Spark Streaming串流程式每七天就會報下面這串 Exception，起初也不以為意覺得是Hadoop叢集的問題，
-後來觀察日誌才發現它是每七天就會出現一次，讓程式 crash 掉的問題。可以理解為，每七天Spark的HDFS_DELEGATION_TOKEN
-就會失效，也就聯想到Hadoop叢集的 namenode delegation token 的最大lifetime的初始值也是7天。
-(dfs.namenode.delegation.token.max-lifetime=604800000ms) and dfs.namenode.delegation.token.renew-
-interval=86400000(1 day)</p>
+<p>Hadoop 被設計成從單個服務器擴展到數千臺，每臺機器(節點)都提供本地計算和存儲。
+Hadoop 本身的設計目的不是依靠硬體來提供高可用性，而是在應用層檢測和處理故障，從而在節點上提供高可用性服務，
+每個節點都可能發生故障。它包括 Hadoop Common，Hadoop Distributed File System(hdfs)，Hadoop YARN，Hadoop
+MapReduce。工作場合上，Hadoop 常常被拿來和 MPP RDBMS 比較，</p>
 
-<pre><code class="language-angular2html">ERROR JobScheduler: Error running job streaming job 1528366650000 ms.0
-org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.token.SecretManager$InvalidToken):
-token (token for spark_online: HDFS_DELEGATION_TOKEN owner=spark@XXXXX, renewer=yarn, realUser=, issueDate=1528232733578, maxDate=1528837533578, sequenceNumber=14567778, masterKeyId=1397)
-</code></pre>
-
-<p>根據不管是 <a href="https://spark.apache.org/docs/2.4.6/security.html#long-running-applications">Spark 2.4.6</a> 或者 
-<a href="https://spark.apache.org/docs/3.0.0-preview/security.html#long-running-applications">Spark 3.0.0</a> 以上的官方介紹文檔，
-都表示Spark本身就可以根據使用者提供的keytab和principle去自動的renew token，關鍵句子如下。</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-</pre></td><td class="rouge-code"><pre>Spark supports automatically creating new tokens for these applications when running in YARN mode. 
-Kerberos credentials need to be provided to the Spark application via the spark-submit command, using the --principal and --keytab parameters.
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<p>但是，HDFS-9276說明，在開啟<a href="https://codertw.com/程式語言/442243/">高可用機制的 Hadoop 叢集</a>上，緩存的 DFSClient 會使用舊的 hdfs_delegation_token 的，從而導致 token 在其最大的生命週期
-到達時過期。就是 Spark 在更新 Hadoop HA 叢集的 delegation token 的時候，DFSClient 不會一起更新它的 token (
-namenode token)。reference: <a href="https://www.codenong.com/cs106192404/">sparkThriftserver 长时间运行HDFS_DELEGATION_TOKEN失效问题</a></p>
-
-<p>解決方法根據 <a href="https://github.com/apache/spark/pull/9168">SPARK-11182</a> 裡面提到的， 可能的方式：</p>
-
-<p>(1) 更新 Hadoop 的版本到 2.9.0 或以上。（然而我們的版本是 2.6.0，更新的可能性不大）</p>
-
-<p>(2) 調整dfs.namenode.delegation.token.max-lifetime 等於一個較大的值，使得 token 最大生命週期變長，從而滿足使用者需要。</p>
-
-<p>(3) 調整設定 <code class="language-plaintext highlighter-rouge">spark.hadoop.fs.hdfs.impl.disable.cache=true</code>。然而，好像沒有效果。</p>
-
-<p>目前採用的方式是修改 Hadoop Cluster 上面的 token 的 max-lifetime，並在 token 生命週期到達的時候，排程重啟 Spark 
-Structured Streaming 程式以更新 token。</p>
-
-<p>Reference</p>
 <ol>
-  <li><a href="https://blog.csdn.net/u012150370/article/details/86518366">记一次HDFS Delegation Token失效问题</a></li>
-  <li><a href="https://www.jianshu.com/p/2904334ae404">hdfs delegation token 过期问题分析</a></li>
-  <li><a href="https://www.athemaster.com/resources/47">解釋 Hadoop Delegation Token 上篇</a></li>
+  <li>MPP RDBMS 只能處理結構化數據，而 Hadoop 則處理的大部分是非結構化資料。當然 Hadoop也處理結構化資料，Hive就是 Hadoop
+生態圈的資料倉儲解決方案。</li>
+  <li>Hadoop以資料塊(block)的方式儲存數據，預設的大小是 128MB，比作業系統裡面的塊概念要大很多(作業系統塊大小是 4KB)，
+可以根據實際需求修改 HDFS 塊大小的設定。而 RDBMS 則是將資料保存在本地的 file system 上，並根據不同大小的 page size
+設定 (4k, 8k, 16k…)，會有不同的欄位個數或資料大小限制。</li>
+</ol>
+
+<p>Spark</p>
+
+<p>資料倉儲理論和Spark的架構
+SPARK与具体存储解耦，采用的是与shared-nothing MPP数据库不同的“计算与存储分离”的架构，可提供更具弹性的部署方式，
+既能独立部署运行，也能够与HDFS集成。</p>
+
+<h3>#</h3>
+
+<h3 id="-1">#</h3>
+
+<h3 id="-reference"># Reference</h3>
+
+<ol>
+  <li><a href="https://cloud.tencent.com/developer/article/1544733">Hadoop vs MPP</a></li>
+  <li><a href="https://www.gushiciku.cn/pl/a2vN/zh-hk">MPP架構與Hadoop架構是一回事嗎？</a></li>
+  <li><a href="https://medium.com/@jockeyng/hadoop與mpp是什麼關係-有什麼區別和聯繫-afb4397e12a1">Hadoop與MPP是什麼關係?有什麼區別和聯繫?</a></li>
+  <li><a href="https://toutiao.io/posts/2a9ayg/preview">MPP 的进化：深入理解 Batch 和 MPP 优缺点</a></li>
+  <li><a href="https://www.linkedin.com/pulse/hadoop-vs-rdbms-storage-performance-design-gautam-prothia">https://www.linkedin.com/pulse/hadoop-vs-rdbms-storage-performance-design-gautam-prothia</a></li>
+  <li><a href="https://www.yinxiang.com/everhub/note/4e0c04c8-1167-4c3e-8c1d-52307f782745">数据平台发展简史 - 从“shared-nothing MPP”到云上“Multi-Cluster shared-data”</a></li>
+  <li><a href="https://blog.csdn.net/flyinthesky111/article/details/113558863">浅谈Hadoop体系和MPP体系</a></li>
+  <li><a href="https://www.zhihu.com/question/27589901">mpp架构是什么？它与各种sql on hadoop架构根本区别在那里，优点和缺点是什么？求专业人士赐教？</a></li>
+  <li><a href="https://mentalmodels4life.net/2016/08/14/apache-spark-vs-mpp-databases/">Apache Spark vs MPP Databases</a></li>
+  <li><a href="https://saintbacchus.github.io/2019/06/14/并行计算模式/">并行计算模式</a></li>
 </ol>
 
         
@@ -346,7 +351,7 @@ Structured Streaming 程式以更新 token。</p>
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <p class="copyright text-muted">
-                    Copyright &copy;  2021
+                    Copyright &copy;  2022
                     <span id="htmer_time" style=""></span>
                     <br>
                     Powered by Huxpro, Jekyll, Maintained By <a href="https://github.com/will1227">William Lin</a>

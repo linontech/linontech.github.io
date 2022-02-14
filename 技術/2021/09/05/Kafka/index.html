@@ -11,25 +11,36 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="logstash 初次見面 - ">
+    <meta property="og:title" content="Kafka! - ">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="Logstash: Collect, Parse and Transform logs.
+    <meta property="og:description" content="[TOC]
 
-Logstash 是一個用來做日誌收集，分析，過濾的工具。一開始就是見到了，
-logstash的資料流的設定檔案，名稱前面標示了數字，聽前說人檔案會按照 filename 字母順序組合，這在需要切分複雜設定的時候
-或許有些用，也要特別注意用條件來區分不同的資料流。但使用下來我還是覺得如果沒有需要幾千行...">
+Table of Kafka
+
+
+  Kafka 基本介紹
+  Kafka 名詞解釋
+  建置 Kafka 環境和相關設定
+  Kafka 生態圈
+  How to parallelize Consumer ?
+
+
+Kafka 基本介紹
+
+Kafka 是Linkedin公司開始後來由Apache基金會開發的一個分佈式，支持多分區、多副本的資料流處理平台，他同時也是一個基於
+發佈...">
     
-    <meta property="article:published_time" content="2021-10-15T00:00:00Z">
+    <meta property="article:published_time" content="2021-09-05T00:00:00Z">
     
     
     
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/10/15/logstash-%E5%88%9D%E6%AC%A1%E8%A6%8B%E9%9D%A2/">
+    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/09/05/Kafka/">
     <meta property="og:site_name" content="">
 
-    <title>logstash 初次見面 - </title>
+    <title>Kafka! - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -38,7 +49,7 @@ logstash的資料流的設定檔案，名稱前面標示了數字，聽前說人
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2021/10/15/logstash-%E5%88%9D%E6%AC%A1%E8%A6%8B%E9%9D%A2/">
+    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2021/09/05/Kafka/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -219,9 +230,9 @@ logstash的資料流的設定檔案，名稱前面標示了數字，聽前說人
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">logstash 初次見面</h3>
+          <h3 id="intro-header-item">Kafka!</h3>
           <span class="subheading"></span>
-          <span class="meta">October 15, 2021</span>
+          <span class="meta">September 5, 2021</span>
         </div>
       </div>
     </div>
@@ -245,115 +256,145 @@ logstash的資料流的設定檔案，名稱前面標示了數字，聽前說人
                 
 
                 <div id="app">
-                    <p>Logstash: Collect, Parse and Transform logs.</p>
+                    <p>[TOC]</p>
 
-<p>Logstash 是一個用來做日誌收集，分析，過濾的工具。一開始就是見到了，
-logstash的資料流的設定檔案，名稱前面標示了數字，聽前說人檔案會按照 filename 字母順序組合，這在需要切分複雜設定的時候
-或許有些用，也要特別注意用條件來區分不同的資料流。但使用下來我還是覺得如果沒有需要幾千行的設定，那還是放在一個設定檔裡面就好了。</p>
-
-<h3 id="-設定檔格式"># 設定檔格式</h3>
-
-<p>input, filter, output 的組成非常符合 Logstash 的人設。要特別說的是檔案裡面也是可以空行和寫注釋的，
-畢竟只是一個定義資料流的腳本，寫明白資料的來源格式和指定輸出格式，以及解析的方式還是很重要的。</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-</pre></td><td class="rouge-code"><pre>input { # comments can appear at the end of a line, too
-  http {
-    codec =&gt; json {
-      charset =&gt; "ISO-8859-1"
-      target =&gt; "[document]"
-    }
-  }
-}
-
-filter {
-}
-
-output {
-}
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<h3 id="-常用的-plugin"># 常用的 plugin</h3>
-
-<h4 id="codec">codec</h4>
-
-<p>codec 表示編解碼插件，可以按照約定好的格式將數據讀進來logstash。例如直接將json字符串格式的資料定義為key value的格式。
-一些常見的編解碼插件如下，</p>
-
-<p>(1) json
-(2) csv
-(3) protobuf</p>
-
-<p>Google Protocol Buffer 是一種輕便高效的結構化存儲數據的格式。</p>
-
-<p>(4) multiline</p>
-
-<p>Collapse multiline messages and merge them into a single event. 例如，當你需要將任何一行不是以時間戳記
-開頭的字符串合併到它的上一行，就可以很方便的使用這個 codec。官方給的實現方式如下，</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-</pre></td><td class="rouge-code"><pre>    input {
-      file {
-        path =&gt; "/var/log/someapp.log"
-        codec =&gt; multiline {
-          # Grok pattern names are valid! :)
-          pattern =&gt; "^%{TIMESTAMP_ISO8601} "
-          negate =&gt; true
-          what =&gt; "previous"
-        }
-      }
-    }
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<p>(5) rubydebug</p>
-
-<p>輸出時使用，通常會用在 debug 的時候。它能將logstash的事件用Ruby Amazing Print library的格式輸出。</p>
-
-<h4 id="grok">grok</h4>
-
-<p>grok 是一個 filter 插件，負責把收到的數據，以使用者自定義的正則處理，讓數據變成使用者想要的鍵值對的格式。</p>
-
-<p>特別的，由於日誌通常很長一串又格式複雜，於是 <a href="https://grokdebug.herokuapp.com">Grok Debugger Tool</a> 就出現了，
-可以直接透過這個小工具來檢查自己的解析語法是否match到所有自己想要的欄位。</p>
-
-<h3 id="-mutate-filter-plugin-prune-filter-plugin"># mutate filter plugin, Prune filter plugin</h3>
-
-<h3 id="-date-filter"># date filter</h3>
-
-<p>https://doc.yonyoucloud.com/doc/logstash-best-practice-cn/filter/date.html</p>
-
-<p>logstash 透過 filter 把 event timestamp 換成 log 日期</p>
-
-<h3 id="-生命週期管理"># 生命週期管理</h3>
-
-<h3 id="-reference"># Reference</h3>
+<h2 id="table-of-kafka">Table of Kafka</h2>
 
 <ol>
-  <li><a href="https://elasticsearch.cn//question/9113">logstash可以同時應用多個filter, filter的順序如何控制?</a></li>
-  <li><a href="https://doc.youyoucloud.com/doc/logstash-best-practice-cn/filter/mutate.html">logstash-best-practice-cn</a></li>
+  <li>Kafka 基本介紹</li>
+  <li>Kafka 名詞解釋</li>
+  <li>建置 Kafka 環境和相關設定</li>
+  <li>Kafka 生態圈</li>
+  <li>How to parallelize Consumer ?</li>
+</ol>
+
+<h2 id="kafka-基本介紹">Kafka 基本介紹</h2>
+
+<p>Kafka 是Linkedin公司開始後來由Apache基金會開發的一個分佈式，支持多分區、多副本的資料流處理平台，他同時也是一個基於
+發佈和訂閱的消息隊列系統。常用來異步處理請求、流量削峰、日誌處理、解耦業務處理過程。。等等。它基於Java和Scala語言開發。
+它的一些流處理(Stream processing capabilities)特性：</p>
+
+<ul>
+  <li>高吞吐 低延遲：Kafka 的最大的優點就是收發消息特別快，每秒可以處理幾十萬比數據</li>
+  <li>高並發 可拓展性：Kafka 是分佈式系統 distributed system，可以彈性縮放所需的資源，處理不同場景的串流數據。一個 topic 
+可以有多個分區，分佈在不同的 broker 上。多個 partition 可以讓多個客戶端同時讀寫。</li>
+  <li>資料持久化 可靠性：Kafka 可以將數據持久化存儲，數據被保存成 bytearray 的格式，並在 consume 的時候在被反序列化成
+可讀的格式(string, json, …)</li>
+  <li>容錯性：Kafka 提供了三種 delivery guarantees: At most once, At least once, Exactly once</li>
+</ul>
+
+<p>生產消息的 Producer，和消費者 Consumer/Consumer Group，兩端業務邏輯被解耦：一個負責生產數據，另一個就是單純
+把數據接收下來，並且由 Consumer Group去記錄對應某個 Topic 目前信息接收到第幾條了(offset)。這些生產者和
+消費者彼此之間除了約定 Schema 之外沒有直接的關聯，生產者和消費者的活動都由 kafka broker 負責。
+可以說一個 kafka broker 就是一個 kafka ，多個 kafka broker 就會組成一個 kafka 集群。</p>
+
+<h2 id="名詞解釋">名詞解釋</h2>
+
+<ul>
+  <li>
+    <p>Event: 每個在 Kafka 內保存的資料可以視為一個事件，一個事件包含了鍵 key，值 value，時間戳 timestamp。</p>
+  </li>
+  <li>
+    <p>Topic: 區分不同消息的放置位置和，好比 table name。</p>
+  </li>
+  <li>
+    <p>Partition: 分區，這裡的概念基本上和 ElasticSearch 上的分片概念是一樣的。都是想把數據合理的放在不同 server 的分區上面，
+以達到負載均衡。特別要注意的是，每個分區存儲的數據都是有序的，但是不同分區間的數據不保證有序性。若有保證有序，
+那就只能設置一個分區。</p>
+  </li>
+  <li>
+    <p>Replica: 副本，kafka 為了防止服務器壞掉採取的措施。需要注意的是不同分區的備份存放的是不同部分的數據，也就是如果沒有備份整個
+kafka 集群就無法備份 kafka topic 的所有的分區。</p>
+  </li>
+  <li>
+    <p>Broker: Broker 指運行 Kafka 的機器。多個 Broker 就組成 Kafka 集群。</p>
+  </li>
+  <li>
+    <p>Controller(Leader Broker): Kafka controller 是一個 Kafka集群的頭腦部分，一個Kafka集群只能有一個 Controller，那個節點就和一般的broker無異，
+只是多負責管理整個集群中所有分區和副本的狀態，比如 broker server 的上線、下線處理，創建/刪除 topic，處理每個 topic 的分區副本分配，以及 leader
+的選舉，等等。</p>
+  </li>
+  <li>
+    <p>Zookeeper</p>
+  </li>
+</ul>
+
+<p>提到 Controller 就感覺還會需要科普學習一下下 zookeeper。官方文件寫到，
+<code class="language-plaintext highlighter-rouge">ZooKeeper is a centralized service for maintaining configuration information, naming,
+ providing distributed synchronization, and providing group services. </code>
+至少在 2021 年之前他對於 kafka都扮演重要的角色。 
+Kafka 保存了很多重要的元數據在 zookeeper，比如 kafka topic 的基本資訊，分區、副本等資訊，
+以及 broker 信息和ISR（In-Sync Replicas）等等。</p>
+
+<ul>
+  <li>
+    <p>ISR (In-Sync-replicas): Isr 表示目前 in-sync 的 replicas，如果目前 broker 的連接及運作均正常，Isr 就等同於 replicas。可以在 topic 的
+describe 資訊中確認。</p>
+  </li>
+  <li>
+    <p>Offset: 記錄每個 consumer group 在每個 kafka topic 的每個分區的索引。
+<code class="language-plaintext highlighter-rouge">offset is an indexed maintained at __consumer_offset topic for each consumer group id, topic name and partition number.</code></p>
+  </li>
+  <li>
+    <p>Consumer group: 將 Consumer 註冊在指定的 group id 下，那他就會被分配到一個 consumer group，同一個 group 
+裡面的 consumer 不會收到相同的資料。</p>
+  </li>
+  <li>
+    <p>Lag: consumer group 的未讀新消息數量。</p>
+  </li>
+</ul>
+
+<h2 id="建置-kafka-環境和相關設定">建置 Kafka 環境和相關設定</h2>
+
+<p>通常 Kafka 集群都會和 ZooKeeper 綁定，ZooKeeper 作為一個分佈式資源的集中服務扮演者協調 Kafka Server 的角色，
+每個 Kafka broker 都會到 ZooKeeper 註冊。</p>
+
+<ol>
+  <li>選擇版本並從官網安裝 https://downloads.apache.org/kafka/</li>
+  <li>設定 listeners 服務器真正 bind 的地址和 advertised.listeners，曝露給外部的 ip 地址，如果沒有設定的話會
+直接使用 listeners 。他們告訴 Kafka 的客戶端要用什麼協議，哪個 ip 地址去訪問 Kafka 服務。</li>
+</ol>
+
+<pre><code class="language-angular2html">e.g. 
+listeners=PLAINTEXT://HOSTNAME:PORT,SSL://HOSTNAME:PORT
+
+listeners=INSIDE://HOSTNAME:PORT,OUTSIDE://HOSTNAME:PORT
+listener.security.protocol.map=INSIDE:SASL_PLAINTEXT,OUTSIDE:SASL_PLAINTEXT
+
+P.S 
+PLAINTEXT 代表 listeners 不需要授權或者加密
+SASL_PLAINTEXT 代表需要 SASL 授權，但是不加密
+SASL_SSL 代表 SASL 授權且使用 SSL 加密通訊
+SSL 使用 SSL 加密通訊
+</code></pre>
+
+<h2 id="kafka-生態圈">Kafka 生態圈</h2>
+
+<p>Kafka Stream: 從 Apache Kafka 0.10 版本開始引入的一個 [feature]
+(https://kafka.apache.org/0102/javadoc/index.html?org/apache/kafka/streams/KafkaStreams.html)。
+他是用於流計算的lib，和 Spark Streaming，Storm，Flink 等類似。</p>
+
+<p>Kafka Connect: 一個介接其他數據庫和 Kafka 之間的串流工具，它繼承了 Kafka 的可擴展性(scalability)和高可靠性(reliably)
+。它可以接收整個數據庫，比如 Oracle，或者收集特定的指標，送到指定的 Kafka topic。</p>
+
+<h2 id="how-to-parallelize-kafka-consumer-">How to Parallelize Kafka Consumer ?</h2>
+
+<p>使用 Kafka 設定資料流時最常會遇到的問題，即要如何設定 kafka topic 的分區數和備份個數，以及要使用多少個 consumer
+去讀取資料才能最佳化資料流性能？這篇<a href="https://medium.com/@jhansireddy007/how-to-parallelise-kakfa-consumers-59c8b0bbc37a">文章</a>
+裡有淺顯易懂的舉例。在同一個 consumer group 裡面的兩個 consumer 不會分配到一個 kafka topic 的同一個 partition。
+同理，一份資料不會被一個 consumer group 裡面的多個 consumer 處理。</p>
+
+<p>如果有一個 consumer group 裡有4個 consumer 對應某個 kafka topic 的四個 partition。此時，再新加入一個 consumer
+將不會優化並行處理的性能，新加入的 consumer 會是 idle 的狀態。一個 consumer 可以分配到多個 partition，但是一個 partition
+不能分配給多個 consumer。Kafka partition 只在同一個 consumer group 裡的多個 consumer 間分配。
+<code class="language-plaintext highlighter-rouge">Kafka can’t assign the same partition to two consumers within the same group.</code> 所以 consumer group 裡的
+最佳 consumer 個數就是一個 kafka topic 的分區個數。</p>
+
+<h2 id="reference">Reference</h2>
+
+<ol>
+  <li><a href="https://www.oreilly.com/library/view/kafka-the-definitive/9781491936153/ch04.html">Kafka Consumers: Reading Data From Kafka</a></li>
+  <li><a href="https://medium.com/@jhansireddy007/how-to-parallelise-kafka-consumers-59c8b0bbc37a">How to parallelise Kafka consumers</a></li>
 </ol>
 
                 </div>
@@ -361,18 +402,11 @@ output {
                 <hr style="visibility: hidden;">
                 <ul class="pager">
                     
-                    <li class="previous">
-                        <a href="/%E6%8A%80%E8%A1%93/2021/10/08/kafka-connect-%E5%8E%9F%E4%BE%86%E6%98%AF%E4%BD%A0/" data-toggle="tooltip" data-placement="top" title="kafka connect 原來是你">
-                        Previous<br>
-                        <span>kafka connect 原來是你</span>
-                        </a>
-                    </li>
-                    
                     
                     <li class="next">
-                        <a href="/%E6%8A%80%E8%A1%93/2021/10/22/logstash%E8%81%9A%E5%90%88%E5%90%8C%E4%BB%BB%E5%8B%99%E7%9A%84%E5%A4%9A%E5%80%8B%E4%BA%8B%E4%BB%B6/" data-toggle="tooltip" data-placement="top" title="logstash聚合同任務的多個事件">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/09/11/Spark/" data-toggle="tooltip" data-placement="top" title="Spark你應該要會的知識">
                         Next<br>
-                        <span>logstash聚合同任務的多個事件</span>
+                        <span>Spark你應該要會的知識</span>
                         </a>
                 </li>
                 

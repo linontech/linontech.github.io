@@ -11,16 +11,28 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="ABOUT - ">
+    <meta property="og:title" content="Spark RDD APIs - ">
     
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="公司老舊的程式碼裡面有很多RDD的資料處理邏輯，其中就包括對資料的customer_id欄位的連接操作、對rdd內字符串的編碼轉換、
+對rdd資料的鍵值格式轉換等。於是想來稍微整理一下一些RDD相關Pyspark API操作。
+
+RDD(Resilient Distributed Dataset)
+
+Some RDD functions
+
+如果函數返回一個新的 RDD，那麼他是一個 tran...">
+    
+    <meta property="article:published_time" content="2021-09-20T00:00:00Z">
+    
+    
+    
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/about/">
+    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2021/09/20/Spark-RDD-%E5%B8%B8%E7%94%A8APIs/">
     <meta property="og:site_name" content="">
 
-    <title>ABOUT - </title>
+    <title>Spark RDD APIs - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -29,7 +41,7 @@
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/about/">
+    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2021/09/20/Spark-RDD-%E5%B8%B8%E7%94%A8APIs/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -191,7 +203,11 @@
 </script>
 
 
-    <!-- Page Header -->
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/concretewall.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
 
 
 
@@ -206,9 +222,9 @@
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">ABOUT</h3>
+          <h3 id="intro-header-item">Spark RDD APIs</h3>
           <span class="subheading"></span>
-          <span class="meta"></span>
+          <span class="meta">September 20, 2021</span>
         </div>
       </div>
     </div>
@@ -217,39 +233,179 @@
 
 
 
-<!-- Main Content -->
-<div class="container">
-	<div class="row">
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+                <div id="app">
+                    <p>公司老舊的程式碼裡面有很多RDD的資料處理邏輯，其中就包括對資料的customer_id欄位的連接操作、對rdd內字符串的編碼轉換、
+對rdd資料的鍵值格式轉換等。於是想來稍微整理一下一些RDD相關Pyspark API操作。</p>
+
+<p>RDD(Resilient Distributed Dataset)</p>
+
+<h2 id="some-rdd-functions">Some RDD functions</h2>
+
+<p>如果函數返回一個新的 RDD，那麼他是一個 transformation，否則它就是一個 action。</p>
+
+<p>Transformation</p>
+
+<p>從一個RDD轉換成新的RDD，Transformation只是描述RDD的操作轉換，而不是實際的去執行。這個是Spark的
+Lazy Evaluation機制。常見的包括，map，select、filter、withColumn 或者 groupby 等等都是屬於 Transformation。</p>
+
+<p>Actions</p>
+
+<p>實際執行所有的 Transformation，並返回結果到 driver。常見的包括，count()，collect()，show() 等等。</p>
+
+<h3 id="-pysparkrddmap"># pyspark.RDD.map</h3>
+
+<p>這個是最直白的一個RDD操作了，即對RDD裡面的所有元素應用一個函數，並返回新的RDD。</p>
+
+<h3 id="-pysparkrddmapvalues"># pyspark.RDD.mapValues</h3>
+
+<p>只把RDD中的每個元素的value傳遞給函數，而不修改原來RDD的key值，也會回傳一個新的RDD，但是會保留原來RDD的分區。</p>
+
+<h3 id="-pysparkrddflatmap"># pyspark.Rdd.flatMap</h3>
+
+<p>先將RDD中的函數應用一個函數，在將所有的結果展平成一個列表，預設是不會保留原始RDD的分區情況的。</p>
+
+<h3 id="-pysparkrddflatmapvalues"># pyspark.Rdd.flatMapValues</h3>
+
+<p>和 <code class="language-plaintext highlighter-rouge">pyspark.RDD.mapValues</code> 一樣，只傳遞RDD元素中的value。</p>
+
+<h3 id="-pysparkrddforeach"># pyspark.RDD.foreach</h3>
+
+<p>Applies a function to all elements of this RDD. (without returning a RDD) 這是一個 Action 操作。</p>
+
+<h3 id="-pysparkrddforeachpartition"># pyspark.RDD.foreachPartition</h3>
+
+<p>Applies a function to each partition of this RDD. 傳遞給函數的是 RDD 的一個分區的資料的 iterator。
+通常在函數中有數據庫連接，網絡API連接或文件批次處理時候使用，以分區為單位進行運算更能夠提供性能。</p>
+
+<h3 id="-pysparkrddgroupby"># pyspark.RDD.groupBy</h3>
+
+<p>Return a RDD of grouped items. 非常特別，官方文件裡面的範例可以 groupby 一個函數的返回值。</p>
+
+<h3 id="-pysparkrddgroupbykey"># pyspark.RDD.groupByKey</h3>
+
+<p>Group the values for each key in the RDD into a single sequence. Hash-partitions the resulting RDD 
+with numPartitions partitions. <strong>Hash-partitions</strong></p>
+
+<h3 id="-pysparkrddreduce"># pyspark.RDD.reduce</h3>
+
+<p>使用交換或組合的二元運算符，例如累加或來減少 RDD 中的元素。白話來說，reduce將 RDD 中的所有元素兩個兩個輸入到函數中，
+並返回一個新的值，新的值和下一個元素在輸入到函數中，直到整個 RDD 剩下一個元素。</p>
+
+<h3 id="-pysparkrddreducebykey"># pyspark.RDD.reduceByKey</h3>
+
+<p>白話來說，reduceByKey是把Key值相同的數據做歸併，比如經典的詞頻統計任務，Key就是單字，每次出現相同的Key就進行累加。
+這是一個 Action 操作。</p>
+
+<p><code class="language-plaintext highlighter-rouge">Merge the values for each key using an associative and commutative reduce function.
+This will also perform the merging locally on each mapper before sending results to a reducer, similarly 
+to a “combiner” in MapReduce.</code></p>
+
+<h3 id="-pysparkrddreducebykeylocally"># pyspark.RDD.reduceByKeyLocally</h3>
+
+<p>獲得結果不需要再呼叫 collect 函數</p>
+
+<p><code class="language-plaintext highlighter-rouge">Merge the values for each key using an associative and commutative reduce function, 
+but return the results immediately to the master as a dictionary.</code></p>
+
+<h3 id="-pysparkrddaggregate"># pyspark.RDD.aggregate</h3>
+
+<p>每個分區的聚合函數，必須提供3個參數，初始值、reduce函數1、reduce函數2，其中reduce函數1指的是在分區應用的reduce函數，
+，每個分區最後會得到一個值，最後在透過reduce函數2進行合併。</p>
+
+<h3 id="-pysparkrddaggregatebykey"># pyspark.RDD.aggregateByKey</h3>
+
+<p>簡單理解 <code class="language-plaintext highlighter-rouge">aggregateByKey</code> 是對每個RDD中相同Key值的value做合併，所以它的返回結果類型也還會是一個 PairRDD，對應的是
+Key和聚合之後的值。上面 <code class="language-plaintext highlighter-rouge">aggregate</code> 返回的則直接返回值。</p>
+
+<h3 id="-pysparkrddjoin"># pyspark.RDD.join</h3>
+
+<p>RDD 的連接函數，類似 SQL 中的 inner join。</p>
+
+<h3 id="-pysparkrddleftouterjoin"># pyspark.RDD.leftOuterJoin</h3>
+
+<p>返回結果以前面的RDD為主，如果匹配不上則會空。</p>
+
+<h3 id="-pysparkrddrightouterjoin"># pyspark.RDD.rightOuterJoin</h3>
+
+<p>返回結果以後面的RDD為主，如果匹配不上則會空。</p>
+
+<h2 id="reference">Reference</h2>
+
+<ol>
+  <li><a href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.html">pyspark documentation</a></li>
+  <li>Apache Spark - foreach vs. foreachPartition When to use What? stackoverflow</li>
+  <li>PySpark foreachPartition - Where is code executed？stackoverflow</li>
+</ol>
+
+                </div>
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/09/11/Spark/" data-toggle="tooltip" data-placement="top" title="Spark你應該要會的知識">
+                        Previous<br>
+                        <span>Spark你應該要會的知識</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/10/08/kafka-connect-%E5%8E%9F%E4%BE%86%E6%98%AF%E4%BD%A0/" data-toggle="tooltip" data-placement="top" title="kafka connect 原來是你">
+                        Next<br>
+                        <span>kafka connect 原來是你</span>
+                        </a>
+                </li>
+                
+            </ul>
+            <hr style="visibility: hidden;">
+
+            
+            <!-- disqus 评论框 start -->
+            <div class="comment">
+                <div id="disqus_thread" class="disqus-thread"></div>
+            </div>
+            <!-- disqus 评论框 end -->
+            
+
+            
+        </div>
+
+    <!-- Side Catalog Container -->
     
-    <!-- NO SIDEBAR -->
-    <!-- PostList Container -->
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
-<!--            <div id="app">-->
-                  <!-- Language Selector -->
-  <select class="sel-lang" onchange="onLanChange(this.options[this.options.selectedIndex].value)">
-      <option value="0" selected> 中文 | Chinese </option>
-      <option value="1"> 英文 | English </option>
-  </select>
+
+<!-- Sidebar Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            sidebar-container">
 
 
-<!-- Chinese Version -->
-<div class="zh post-container">
-    
-    
-<p>這是一個使用 Jekyll + Vue.js 的框架，利用 vue.js 中的 b-pagination 實現了翻頁的功能。</p>
-
+        </div>
+    </div>
 </div>
+</article>
 
-<!-- English Version -->
-<div class="en post-container">
-    
-    
-<p>This is a blog mix Jekyll and Vue.js. components/Pagination.vue implements pagination feature by b-pagination plugin.</p>
-
-</div>
+<!-- add support for mathjax by voleking-->
 
 
-<div id="disqus_thread"></div>
+
+
+
 
     <script>
         /**
@@ -271,19 +427,41 @@
     </script>
 
 
-<!--            </div>-->
-        </div>
-        <!-- Sidebar Container -->
-        <div class="
-            col-lg-8 col-lg-offset-2
-            col-md-10 col-md-offset-1
-            sidebar-container">
 
-        </div>
-    
-	</div>
-</div>
 
+    <!-- async load function -->
+    <script>
+        function async(u, c) {
+          var d = document, t = 'script',
+              o = d.createElement(t),
+              s = d.getElementsByTagName(t)[0];
+          o.src = u;
+          if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+          s.parentNode.insertBefore(o, s);
+        }
+    </script>
+    <!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+    <script>
+        async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+            anchors.options = {
+              visible: 'hover',
+              placement: 'right',
+              // icon: '#'
+            };
+            anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+        })
+    </script>
+    <style>
+        /* place left on bigger screen */
+        @media all and (min-width: 800px) {
+            .anchorjs-link{
+                position: absolute;
+                left: -0.75em;
+                font-size: 1.1em;
+                margin-top : -0.1em;
+            }
+        }
+    </style>
 
 
 
@@ -376,58 +554,6 @@
 
 
 <!-- Multi-Lingual -->
-
-<!-- Handle Language Change -->
-<script type="text/javascript">
-    // get nodes
-    var $zh = document.querySelector(".zh");
-    var $en = document.querySelector(".en");
-    var $select = document.querySelector("select");
-
-    // Changes at v1.8.1: include lang flag as a url query. This interop well with catalog hash anchors.
-    function getLang() { return new URLSearchParams(document.location.search).get("lang") }
-
-    function setLang(newLang) {
-        var params = new URLSearchParams(document.location.search)
-        params.set("lang", newLang)
-        document.location.search = params.toString()  // refresh.
-    }
-
-    // handle render
-    function _render(){
-        var lang = getLang()
-        // en
-        if(lang == "en"){
-            $select.selectedIndex = 1;
-            $en.style.display = "block";
-            $en.classList.add("active");
-            $zh.style.display = "none";
-            $zh.classList.remove("active");
-        // default to zh-cn
-        }else{
-            $select.selectedIndex = 0;
-            $zh.style.display = "block";
-            $zh.classList.add("active");
-            $en.style.display = "none";
-            $en.classList.remove("active");
-        }
-        // interop with catalog
-        if ("") generateCatalog(".catalog-body");
-    }
-
-    // handle select change
-    function onLanChange(index){
-        if(index == 0){
-            lang = "zh"
-        }else{
-            lang = "en"
-        }
-        setLang(lang)
-    }
-
-    // init
-    _render();
-</script>
 
 
 

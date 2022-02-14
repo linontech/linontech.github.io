@@ -118,6 +118,14 @@ Connect 對 Oracle 的支持上進行了優化，如果口袋沒有很深去嘗�
                     
                     
                     
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     <li>
                         <a href="/archive/">ARCHIVE</a>
                     </li>
@@ -247,8 +255,6 @@ Kafka Connect的啦，趕快拉回正題。</p>
 <p>Kafka Connect 是一個介接其他數據庫和 Kafka 之間的串流工具，它繼承了 Kafka 的可擴展性(scalability)和高可靠性(reliably)
 。它可以接收整個數據庫，比如 Oracle，或者收集特定的指標，送到指定的 Kafka topic。</p>
 
-<p>REST API</p>
-
 <h3 id="-source-connector-modes"># Source Connector Modes</h3>
 
 <ul>
@@ -282,7 +288,9 @@ Kafka Connect的啦，趕快拉回正題。</p>
 offset。</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-</pre></td><td class="rouge-code"><pre>incrementing: use a strictly incrementing column on each table to detect only new rows. Note that this will not detect modifications or deletions of existing rows.
+2
+</pre></td><td class="rouge-code"><pre>incrementing: use a strictly incrementing column on each table to detect only new rows. Note that this will
+ not detect modifications or deletions of existing rows.
 </pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>在 Oracle 中，想建立一個遞增欄位，不像 MySQL 一樣簡單添加 AUTO_INCREMENT 欄位關鍵字，或者 Postgres 使用 serial
@@ -344,6 +352,13 @@ offset。</p>
 
                 <hr style="visibility: hidden;">
                 <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/09/20/Spark-RDD-%E5%B8%B8%E7%94%A8APIs/" data-toggle="tooltip" data-placement="top" title="Spark RDD APIs">
+                        Previous<br>
+                        <span>Spark RDD APIs</span>
+                        </a>
+                    </li>
                     
                     
                     <li class="next">
@@ -453,7 +468,7 @@ offset。</p>
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <p class="copyright text-muted">
-                    Copyright &copy;  2021
+                    Copyright &copy;  2022
                     <span id="htmer_time" style=""></span>
                     <br>
                     Powered by Huxpro, Jekyll, Maintained By <a href="https://github.com/will1227">William Lin</a>

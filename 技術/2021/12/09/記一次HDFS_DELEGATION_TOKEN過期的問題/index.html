@@ -14,13 +14,11 @@
     <meta property="og:title" content="記一次HDFS_DELEGATION_TOKEN過期的問題 - ">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="TL;DR
-
-HDFS-9276, SPARK-11182
+    <meta property="og:description" content="TL;DR HDFS-9276, SPARK-11182
 
 最近開發的Spark Streaming串流程式每七天就會報下面這串 Exception，起初也不以為意覺得是Hadoop叢集的問題，
 後來觀察日誌才發現它是每七天就會出現一次，讓程式 crash 掉的問題。可以理解為，每七天Spark的HDFS_DELEGATION_TOKEN
-就會失效，也就聯想到Hadoop叢集的 namen...">
+就會失效，也就聯想到Hadoop叢集的 nameno...">
     
     <meta property="article:published_time" content="2021-12-09T00:00:00Z">
     
@@ -92,6 +90,14 @@ HDFS-9276, SPARK-11182
                     <li>
                         <a href="/">Home</a>
                     </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     
                     
                     
@@ -239,9 +245,7 @@ HDFS-9276, SPARK-11182
                 
 
                 <div id="app">
-                    <p>TL;DR</p>
-
-<p><a href="https://issues.apache.org/jira/browse/HDFS-9276">HDFS-9276</a>, <a href="https://github.com/apache/spark/pull/9168">SPARK-11182</a></p>
+                    <p>TL;DR <a href="https://issues.apache.org/jira/browse/HDFS-9276">HDFS-9276</a>, <a href="https://github.com/apache/spark/pull/9168">SPARK-11182</a></p>
 
 <p>最近開發的Spark Streaming串流程式每七天就會報下面這串 Exception，起初也不以為意覺得是Hadoop叢集的問題，
 後來觀察日誌才發現它是每七天就會出現一次，讓程式 crash 掉的問題。可以理解為，每七天Spark的HDFS_DELEGATION_TOKEN
@@ -270,7 +274,7 @@ namenode token)。reference: <a href="https://www.codenong.com/cs106192404/">spa
 
 <p>解決方法根據 <a href="https://github.com/apache/spark/pull/9168">SPARK-11182</a> 裡面提到的， 可能的方式：</p>
 
-<p>(1) 更新 Hadoop 的版本到 2.9.0 或以上。（然而我們的版本是 2.6.0，更新的可能性不大）</p>
+<p>(1) 更新 Hadoop 的版本到 2.9.0 或以上。（然而我們的版本是 2.6.0，更新的可能性也不大）</p>
 
 <p>(2) 調整dfs.namenode.delegation.token.max-lifetime 等於一個較大的值，使得 token 最大生命週期變長，從而滿足使用者需要。</p>
 
@@ -299,6 +303,13 @@ Structured Streaming 程式以更新 token。</p>
                     </li>
                     
                     
+                    <li class="next">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/12/23/Spark%E7%A8%8B%E5%BC%8F%E5%9C%A8%E7%8D%B2%E5%8F%96Kerberos-ticket/" data-toggle="tooltip" data-placement="top" title="Spark程式在獲取Kerberos ticket">
+                        Next<br>
+                        <span>Spark程式在獲取Kerberos ticket</span>
+                        </a>
+                </li>
+                
             </ul>
             <hr style="visibility: hidden;">
 
@@ -399,7 +410,7 @@ Structured Streaming 程式以更新 token。</p>
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <p class="copyright text-muted">
-                    Copyright &copy;  2021
+                    Copyright &copy;  2022
                     <span id="htmer_time" style=""></span>
                     <br>
                     Powered by Huxpro, Jekyll, Maintained By <a href="https://github.com/will1227">William Lin</a>

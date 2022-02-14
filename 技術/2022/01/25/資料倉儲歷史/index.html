@@ -11,16 +11,25 @@
     <meta name="theme-color" content="#000000">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="ABOUT - ">
+    <meta property="og:title" content="資料倉儲歷史 - ">
     
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="MPP 小歷史
+
+MPP(Massively Parallel Processing)，大規模並行處理，指的是將任務分散到多個節點上，各自計算完成後在合併結果。當談論到
+MPP的時候，我們一般指的都是分佈式數據庫(MPP RDBMS)，例如 Teradata。為了能將節點們各自獨立並能更好的拓展性能，MPP 架構
+採用 shared-nothing 的概念，不共享存儲和計算資源。資料也以sh...">
+    
+    <meta property="article:published_time" content="2022-01-25T00:00:00Z">
+    
+    
+    
     
     <meta property="og:image" content="/img/sword.jpg">
-    <meta property="og:url" content="/about/">
+    <meta property="og:url" content="/%E6%8A%80%E8%A1%93/2022/01/25/%E8%B3%87%E6%96%99%E5%80%89%E5%84%B2%E6%AD%B7%E5%8F%B2/">
     <meta property="og:site_name" content="">
 
-    <title>ABOUT - </title>
+    <title>資料倉儲歷史 - </title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -29,7 +38,7 @@
     <link rel="shortcut icon" href="/img/sword.jpg">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="/about/">
+    <link rel="canonical" href="/%E6%8A%80%E8%A1%93/2022/01/25/%E8%B3%87%E6%96%99%E5%80%89%E5%84%B2%E6%AD%B7%E5%8F%B2/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -191,7 +200,11 @@
 </script>
 
 
-    <!-- Page Header -->
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/concretewall.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
 
 
 
@@ -206,9 +219,9 @@
         
         <div class="site-heading" id="tag-heading">
         
-          <h3 id="intro-header-item">ABOUT</h3>
+          <h3 id="intro-header-item">資料倉儲歷史</h3>
           <span class="subheading"></span>
-          <span class="meta"></span>
+          <span class="meta">January 25, 2022</span>
         </div>
       </div>
     </div>
@@ -217,39 +230,113 @@
 
 
 
-<!-- Main Content -->
-<div class="container">
-	<div class="row">
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+                <div id="app">
+                    <h2 id="mpp-小歷史">MPP 小歷史</h2>
+
+<p>MPP(Massively Parallel Processing)，大規模並行處理，指的是將任務分散到多個節點上，各自計算完成後在合併結果。當談論到
+MPP的時候，我們一般指的都是分佈式數據庫(MPP RDBMS)，例如 Teradata。為了能將節點們各自獨立並能更好的拓展性能，MPP 架構
+採用 shared-nothing 的概念，不共享存儲和計算資源。資料也以sharding的方式儲存在各個節點。</p>
+
+<p>Hadoop 被設計成從單個服務器擴展到數千臺，每臺機器(節點)都提供本地計算和存儲。
+Hadoop 本身的設計目的不是依靠硬體來提供高可用性，而是在應用層檢測和處理故障，從而在節點上提供高可用性服務，
+每個節點都可能發生故障。它包括 Hadoop Common，Hadoop Distributed File System(hdfs)，Hadoop YARN，Hadoop
+MapReduce。工作場合上，Hadoop 常常被拿來和 MPP RDBMS 比較，</p>
+
+<ol>
+  <li>MPP RDBMS 只能處理結構化數據，而 Hadoop 則處理的大部分是非結構化資料。當然 Hadoop也處理結構化資料，Hive就是 Hadoop
+生態圈的資料倉儲解決方案。</li>
+  <li>Hadoop以資料塊(block)的方式儲存數據，預設的大小是 128MB，比作業系統裡面的塊概念要大很多(作業系統塊大小是 4KB)，
+可以根據實際需求修改 HDFS 塊大小的設定。而 RDBMS 則是將資料保存在本地的 file system 上，並根據不同大小的 page size
+設定 (4k, 8k, 16k…)，會有不同的欄位個數或資料大小限制。</li>
+</ol>
+
+<p>Spark</p>
+
+<p>資料倉儲理論和Spark的架構
+SPARK与具体存储解耦，采用的是与shared-nothing MPP数据库不同的“计算与存储分离”的架构，可提供更具弹性的部署方式，
+既能独立部署运行，也能够与HDFS集成。</p>
+
+<h3>#</h3>
+
+<h3 id="-1">#</h3>
+
+<h3 id="-reference"># Reference</h3>
+
+<ol>
+  <li><a href="https://cloud.tencent.com/developer/article/1544733">Hadoop vs MPP</a></li>
+  <li><a href="https://www.gushiciku.cn/pl/a2vN/zh-hk">MPP架構與Hadoop架構是一回事嗎？</a></li>
+  <li><a href="https://medium.com/@jockeyng/hadoop與mpp是什麼關係-有什麼區別和聯繫-afb4397e12a1">Hadoop與MPP是什麼關係?有什麼區別和聯繫?</a></li>
+  <li><a href="https://toutiao.io/posts/2a9ayg/preview">MPP 的进化：深入理解 Batch 和 MPP 优缺点</a></li>
+  <li><a href="https://www.linkedin.com/pulse/hadoop-vs-rdbms-storage-performance-design-gautam-prothia">https://www.linkedin.com/pulse/hadoop-vs-rdbms-storage-performance-design-gautam-prothia</a></li>
+  <li><a href="https://www.yinxiang.com/everhub/note/4e0c04c8-1167-4c3e-8c1d-52307f782745">数据平台发展简史 - 从“shared-nothing MPP”到云上“Multi-Cluster shared-data”</a></li>
+  <li><a href="https://blog.csdn.net/flyinthesky111/article/details/113558863">浅谈Hadoop体系和MPP体系</a></li>
+  <li><a href="https://www.zhihu.com/question/27589901">mpp架构是什么？它与各种sql on hadoop架构根本区别在那里，优点和缺点是什么？求专业人士赐教？</a></li>
+  <li><a href="https://mentalmodels4life.net/2016/08/14/apache-spark-vs-mpp-databases/">Apache Spark vs MPP Databases</a></li>
+  <li><a href="https://saintbacchus.github.io/2019/06/14/并行计算模式/">并行计算模式</a></li>
+</ol>
+
+                </div>
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2021/12/30/ElasticSearch-Removal-of-mapping-types/" data-toggle="tooltip" data-placement="top" title="Elasticsearch Removal Of Mapping Types">
+                        Previous<br>
+                        <span>Elasticsearch Removal Of Mapping Types</span>
+                        </a>
+                    </li>
+                    
+                    
+            </ul>
+            <hr style="visibility: hidden;">
+
+            
+            <!-- disqus 评论框 start -->
+            <div class="comment">
+                <div id="disqus_thread" class="disqus-thread"></div>
+            </div>
+            <!-- disqus 评论框 end -->
+            
+
+            
+        </div>
+
+    <!-- Side Catalog Container -->
     
-    <!-- NO SIDEBAR -->
-    <!-- PostList Container -->
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
-<!--            <div id="app">-->
-                  <!-- Language Selector -->
-  <select class="sel-lang" onchange="onLanChange(this.options[this.options.selectedIndex].value)">
-      <option value="0" selected> 中文 | Chinese </option>
-      <option value="1"> 英文 | English </option>
-  </select>
+
+<!-- Sidebar Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            sidebar-container">
 
 
-<!-- Chinese Version -->
-<div class="zh post-container">
-    
-    
-<p>這是一個使用 Jekyll + Vue.js 的框架，利用 vue.js 中的 b-pagination 實現了翻頁的功能。</p>
-
+        </div>
+    </div>
 </div>
+</article>
 
-<!-- English Version -->
-<div class="en post-container">
-    
-    
-<p>This is a blog mix Jekyll and Vue.js. components/Pagination.vue implements pagination feature by b-pagination plugin.</p>
-
-</div>
+<!-- add support for mathjax by voleking-->
 
 
-<div id="disqus_thread"></div>
+
+
+
 
     <script>
         /**
@@ -271,19 +358,41 @@
     </script>
 
 
-<!--            </div>-->
-        </div>
-        <!-- Sidebar Container -->
-        <div class="
-            col-lg-8 col-lg-offset-2
-            col-md-10 col-md-offset-1
-            sidebar-container">
 
-        </div>
-    
-	</div>
-</div>
 
+    <!-- async load function -->
+    <script>
+        function async(u, c) {
+          var d = document, t = 'script',
+              o = d.createElement(t),
+              s = d.getElementsByTagName(t)[0];
+          o.src = u;
+          if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+          s.parentNode.insertBefore(o, s);
+        }
+    </script>
+    <!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+    <script>
+        async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+            anchors.options = {
+              visible: 'hover',
+              placement: 'right',
+              // icon: '#'
+            };
+            anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+        })
+    </script>
+    <style>
+        /* place left on bigger screen */
+        @media all and (min-width: 800px) {
+            .anchorjs-link{
+                position: absolute;
+                left: -0.75em;
+                font-size: 1.1em;
+                margin-top : -0.1em;
+            }
+        }
+    </style>
 
 
 
@@ -376,58 +485,6 @@
 
 
 <!-- Multi-Lingual -->
-
-<!-- Handle Language Change -->
-<script type="text/javascript">
-    // get nodes
-    var $zh = document.querySelector(".zh");
-    var $en = document.querySelector(".en");
-    var $select = document.querySelector("select");
-
-    // Changes at v1.8.1: include lang flag as a url query. This interop well with catalog hash anchors.
-    function getLang() { return new URLSearchParams(document.location.search).get("lang") }
-
-    function setLang(newLang) {
-        var params = new URLSearchParams(document.location.search)
-        params.set("lang", newLang)
-        document.location.search = params.toString()  // refresh.
-    }
-
-    // handle render
-    function _render(){
-        var lang = getLang()
-        // en
-        if(lang == "en"){
-            $select.selectedIndex = 1;
-            $en.style.display = "block";
-            $en.classList.add("active");
-            $zh.style.display = "none";
-            $zh.classList.remove("active");
-        // default to zh-cn
-        }else{
-            $select.selectedIndex = 0;
-            $zh.style.display = "block";
-            $zh.classList.add("active");
-            $en.style.display = "none";
-            $en.classList.remove("active");
-        }
-        // interop with catalog
-        if ("") generateCatalog(".catalog-body");
-    }
-
-    // handle select change
-    function onLanChange(index){
-        if(index == 0){
-            lang = "zh"
-        }else{
-            lang = "en"
-        }
-        setLang(lang)
-    }
-
-    // init
-    _render();
-</script>
 
 
 

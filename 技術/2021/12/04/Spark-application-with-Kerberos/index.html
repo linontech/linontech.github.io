@@ -18,9 +18,9 @@
 服務器 (Authenticate Server)，一個票證授權服務器 (Ticket-Granting Server)，以及一個記錄他所知道的 principles
 和它們的 Kerberos 密碼的內建資料庫。
 
-Principle
+# Principle
 
-一個 Kerb...">
+一個 Ke...">
     
     <meta property="article:published_time" content="2021-12-04T00:00:00Z">
     
@@ -92,6 +92,14 @@ Principle
                     <li>
                         <a href="/">Home</a>
                     </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     
                     
                     
@@ -243,7 +251,7 @@ Principle
 服務器 (Authenticate Server)，一個票證授權服務器 (Ticket-Granting Server)，以及一個記錄他所知道的 principles
 和它們的 Kerberos 密碼的內建資料庫。</p>
 
-<h4 id="principle">Principle</h4>
+<h3 id="-principle"># Principle</h3>
 
 <p>一個 Kerberos principle 長得像，</p>
 
@@ -255,7 +263,7 @@ Principle
 比如 ap 帳號，也可以是Hadoop服務的Unix帳號，比如 hdfs。instance 是用來區分單個 user 的多個 principle 時使用。
 realm 類似 DNS 中的域，不同的是 DNS 是定義了一組主機名，而 realm 則是定義了一組相關的 principle。</p>
 
-<h4 id="keytab">Keytab</h4>
+<h3 id="-keytab"># Keytab</h3>
 
 <p>Keytab 包含了加密的principle鍵值和對應的 Kerberos principle。 它被用來在驗證一個 Kerberos principle，
 而不用人為得敲打密碼或者明碼保存密碼了。</p>
@@ -264,19 +272,26 @@ realm 類似 DNS 中的域，不同的是 DNS 是定義了一組主機名，而 
 You can use a keytab file to authenticate to various remote systems using Kerberos without entering a password.
 </code></pre>
 
-<h4 id="ticket-granting-ticket-tgt">Ticket-Granting ticket TGT</h4>
+<h3 id="-ticket-granting-ticket-tgt"># Ticket-Granting ticket TGT</h3>
 <p>由 KDC 中的 Authenticate Server頒發的票證，使用者帶著這個票證可以向 Server 端請求相應的服務。</p>
 
-<h4 id="ccache-credential-cache">ccache (Credential Cache)</h4>
+<h3 id="-ccache-credential-cache"># ccache (Credential Cache)</h3>
 <p>Credential Cache 也是 Kerberos 驗證身份的一種方式，它持有Kerberos的憑證，使得使用者所執行任務session還有效時，
 多次驗證服務器，而不用一直請求 KDC 服務器。</p>
 
-<h3 id="long-running-spark-application-with-kerberos">Long-running Spark Application with Kerberos</h3>
+<h3 id="-long-running-spark-application-with-kerberos"># Long-running Spark Application with Kerberos</h3>
 
 <p>對於一個 Spark Streaming 服務，只要在 spark submit 指令後面加上 –keytab 和 –principle 兩個參數，
 Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation token 和 login ticket。</p>
 
-<h3 id="kafka-with-a-kerberos-ticket-cache">Kafka with a Kerberos Ticket Cache</h3>
+<h4 id="reference">Reference</h4>
+
+<ol>
+  <li><a href="https://mkuthan.github.io/blog/2016/09/30/spark-streaming-on-yarn/">Long-running Spark Streaming jobs on YARN cluster</a></li>
+  <li><a href="https://flume.cn/2016/11/24/Spark踩坑之Streaming在Kerberos的hadoop中renew失敗/值">Spark踩坑之Streaming在Kerberos的hadoop中renew失敗</a></li>
+</ol>
+
+<h3 id="-kafka-with-a-kerberos-ticket-cache"># Kafka with a Kerberos Ticket Cache</h3>
 
 <p>如果你的 Spark Streaming 任務的串流資料來自於 Kafka，別忘了在 worker node 上面，由於 kafka 的 Kerberos 認證 
 也會需要的 keytab 會需要送到 worker node 上面，否則會認證失敗。</p>
@@ -303,6 +318,8 @@ Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation tok
 };
 </pre></td></tr></tbody></table></code></pre></div></div>
 
+<h3 id="-kerberos---maximum-renewable-lifetime-for-kerberos-ticket"># Kerberos - Maximum renewable lifetime for Kerberos Ticket</h3>
+
 <p>Reference</p>
 <ol>
   <li><a href="https://spark.apache.org/docs/2.4.6/running-on-yarn.html#yarn-specific-kerberos-configuration">Running Spark on YARN</a></li>
@@ -314,9 +331,9 @@ Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation tok
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/%E6%8A%80%E8%A1%93/2021/11/30/kafka-%E5%B0%8F%E7%99%BD%E4%BA%8C%E4%B8%89%E4%BA%8B-%E4%BA%8C/" data-toggle="tooltip" data-placement="top" title="kafka 小白二三事（二）">
+                        <a href="/%E6%8A%80%E8%A1%93/2021/11/17/%E8%B8%A9%E5%9D%91-Azure-TFS-%E9%83%A8%E7%BD%B2%E4%BD%BF%E7%94%A8%E8%80%85%E8%87%AA%E5%AE%9A%E7%BE%A9%E5%8F%83%E6%95%B8/" data-toggle="tooltip" data-placement="top" title="踩坑 Azure TFS 部署使用者定義參數">
                         Previous<br>
-                        <span>kafka 小白二三事（二）</span>
+                        <span>踩坑 Azure TFS 部署使用者定義參數</span>
                         </a>
                     </li>
                     
@@ -428,7 +445,7 @@ Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation tok
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <p class="copyright text-muted">
-                    Copyright &copy;  2021
+                    Copyright &copy;  2022
                     <span id="htmer_time" style=""></span>
                     <br>
                     Powered by Huxpro, Jekyll, Maintained By <a href="https://github.com/will1227">William Lin</a>

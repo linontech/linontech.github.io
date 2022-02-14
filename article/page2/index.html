@@ -109,6 +109,14 @@
                     
                     
                     
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     <li>
                         <a href="/archive/">ARCHIVE</a>
                     </li>
@@ -225,23 +233,17 @@
 
 
 <div class="post-preview">
-    <a href="/%E6%8A%80%E8%A1%93/2021/12/04/Spark-application-with-Kerberos/">
+    <a href="/2021/12/30/ElasticSearch-Removal-of-mapping-types/">
         <h2 class="post-title">
-            Spark Application with Kerberos - Intro
+            Elasticsearch Removal Of Mapping Types
         </h2>
-        
-        <h3 class="post-subtitle">
-            
-        </h3>
         
     </a>
     <p class="post-meta">
-        December 4, 2021 &nbsp;|&nbsp;
-        约5分钟读完
-        大约1499个字
+        December 30, 2021 &nbsp;|&nbsp;
+        约3分钟读完
+        大约832个字
 
-        &nbsp;|&nbsp;&nbsp;
-        <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
         
         <!--        -->
         <!--            &nbsp;|&nbsp;-->
@@ -252,73 +254,50 @@
     </p>
     <div class="post-content-preview">
         
-        <p>Kerberos 是三方認證機制，用戶和服務依賴於第三方（Kerberos 伺服器, KDC）來對彼此進行身份驗證。KDC 包含了一個認證
-服務器 (Authenticate Server)，一個票證授權服務器 (Ticket-Granting Server)，以及一個記錄他所知道的 principles
-和它們的 Kerberos 密碼的內建資料庫。</p>
+        <p>–
+layout: post
+title: “ElasticSearch Removal of mapping types”
+subtitle: “”
+date: 2021-12-30
+categories: [技術]
+—</p>
 
-<h4 id="principle">Principle</h4>
+<p>正好遇到舊叢集升版本，當然 ElasticSearch 的版本也升級了，從 6.1 升級到了 7.13，導致原來有些程式的邏輯需要更新。
+其中有一個就是 ElasticSearch 索引中的每個文檔不再接受一個自己定義的 mapping type (_type) 了，所有的document的
+預設的 mapping type 都是 _doc，並且也不需要一個欄位來特別表示了。</p>
 
-<p>一個 Kerberos principle 長得像，</p>
+<p><code class="language-plaintext highlighter-rouge">Before 7.0.0, the mapping definition included a type name. Elasticsearch 7.0.0 and later no longer 
+accept a default mapping.</code></p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-</pre></td><td class="rouge-code"><pre>username/fully.qualified.domain.name@YOUR-REALM.COM，按照先後順序，
-</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="-tldr"># TL;DR</h3>
 
-<p>它們分別是 primary，instance(option) 和 realm。primary 代表 Kerberos 的用戶，它可以是一個 unix account
-比如 ap 帳號，也可以是Hadoop服務的Unix帳號，比如 hdfs。instance 是用來區分單個 user 的多個 principle 時使用。
-realm 類似 DNS 中的域，不同的是 DNS 是定義了一組主機名，而 realm 則是定義了一組相關的 principle。</p>
-
-<h4 id="keytab">Keytab</h4>
-
-<p>Keytab 包含了加密的principle鍵值和對應的 Kerberos principle。 它被用來在驗證一個 Kerberos principle，
-而不用人為得敲打密碼或者明碼保存密碼了。</p>
-
-<pre><code class="language-angular2html">A keytab is a file containing pairs of Kerberos principals and encrypted keys (which are derived from the Kerberos password). 
-You can use a keytab file to authenticate to various remote systems using Kerberos without entering a password.
-</code></pre>
-
-<h4 id="ticket-granting-ticket-tgt">Ticket-Granting ticket TGT</h4>
-<p>由 KDC 中的 Authenticate Server頒發的票證，使用者帶著這個票證可以向 Server 端請求相應的服務。</p>
-
-<h4 id="ccache-credential-cache">ccache (Credential Cache)</h4>
-<p>Credential Cache 也是 Kerberos 驗證身份的一種方式，它持有Kerberos的憑證，使得使用者所執行任務session還有效時，
-多次驗證服務器，而不用一直請求 KDC 服務器。</p>
-
-<h3 id="long-running-spark-application-with-kerberos">Long-running Spark Application with Kerberos</h3>
-
-<p>對於一個 Spark Streaming 服務，只要在 spark submit 指令後面加上 –keytab 和 –principle 兩個參數，
-Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation token 和 login ticket。</p>
-
-<h3 id="kafka-with-a-kerberos-ticket-cache">Kafka with a Kerberos Ticket Cache</h3>
-
-<p>如果你的 Spark Streaming 任務的串流資料來自於 Kafka，別忘了在 worker node 上面，由於 kafka 的 Kerberos 認證 
-也會需要的 keytab 會需要送到 worker node 上面，否則會認證失敗。</p>
-
-<p>jaas_driver.conf</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td><td class="rouge-code"><pre>KafkaClient {
-    com.sun.security.auth.module.Krb5LoginModule required
-    useKeyTab=true
-    storeKey=true
-    keyTab="/path/on/driver/for/keytab"
-    principal="user@your.customized.realm.name"
-    debug=true
-    serviceName="kafka";
-};
-</pre></td></tr></tbody></table></code></pre></div></div>
-
-<p>Reference</p>
+<p>好處</p>
 <ol>
-  <li><a href="https://spark.apache.org/docs/2.4.6/running-on-yarn.html#yarn-specific-kerberos-configuration">Running Spark on YARN</a></li>
+  <li>將有不同schema的資料儲存在同一個索引中，可能會導致資料太稀疏或者干擾到Lucene壓縮資料的效能;</li>
+  <li>獨立的索引，可以避免一個相同field名稱，但是卻需要有不同資料類型的囧境發生，因為一個索引裡面的相同名字的欄位的
+資料型態必須要是一致的;</li>
+</ol>
+
+<p>如果還是需要類似原來一個 document mapping types 的功能，可以嘗試下面幾種做法:</p>
+
+<ol>
+  <li>一個索引裡面都是相同的 document type，簡單來說就是把索引涵蓋的資料範圍縮小;</li>
+  <li>或者自己模擬一個 type 欄位，這個方法會使得在一個索引裡面有不同 schema 的資料;</li>
+</ol>
+
+<p>在7.0.0版本之前的 ElasticSearch 如果要模擬文檔之間的一對多 Parent/Child 關係，會在同一個index裡面定義兩個自定義
+ mapping type ，分別表示 parent 和 child。但是如果把 _doc 欄位砍掉，Parent/Child 關係就不能這樣子建立了。所以，
+就有了新的 join 類型的欄位出現。</p>
+
+<h3 id="-reference"># Reference</h3>
+
+<ol>
+  <li>
+    <p><a href="https://godleon.github.io/blog/Elasticsearch/Elasticsearch-getting-started/">小信豬的原始部落</a></p>
+  </li>
+  <li>
+    <p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html">Removal of mapping types</a></p>
+  </li>
 </ol>
 
         
@@ -372,7 +351,7 @@ Spark 就會幫忙在生命週期終止前，接續的更新 hdfs delegation tok
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <p class="copyright text-muted">
-                    Copyright &copy;  2021
+                    Copyright &copy;  2022
                     <span id="htmer_time" style=""></span>
                     <br>
                     Powered by Huxpro, Jekyll, Maintained By <a href="https://github.com/will1227">William Lin</a>
