@@ -245,8 +245,8 @@
     </a>
     <p class="post-meta">
         September 11, 2021 &nbsp;|&nbsp;
-        约9分钟读完
-        大约3006个字
+        约10分钟读完
+        大约3428个字
 
         &nbsp;|&nbsp;&nbsp;
         <a href="/categories.html?categories=技術" title="技術">技術&nbsp;</a>
@@ -260,17 +260,22 @@
     </p>
     <div class="post-content-preview">
         
-        <p>Apache Spark是為大數據處理而設計的通用計算引擎，可以用來開發大型的低延遲資料分析應用。
-Spark可以理解是 MapReduce 的替代品，它是一個分散式的計算框架。</p>
+        <p>Apache Spark是為大數據處理而設計的通用分散式計算引擎，可以用來開發大型的低延遲資料分析應用程式。
+它從一開始的設計原則就是為了解決 MapReduce 的不足。
+MapReduce 這個計算框架雖然已經得到廣泛的接受，但是還是有很多它不適合的應用場景。比如機器學習中常見的迭代計算方法，
+或者對實時性要求較高的串流數據處理應用。於是 Spark 在 2009 年誕生，提出來一種記憶體中的彈性分佈式資料結構 RDD，
+一步步發展優化比他大5歲的 MapReduce 的不足。</p>
 
 <h2 id="table-of-spark">Table of Spark</h2>
 
+<p>本文主要介紹關於 Spark 的基礎知識，包括如下幾個方面。Spark 歷史，側重介紹 Spark 各版本有什麼新功能。以及 Spark 的
+各種 Libraries。還有一個 Spark 應用程式的各種任務執行方式。</p>
+
 <ol>
   <li>Spark 歷史</li>
-  <li>Spark 和 Hadoop 的比較</li>
   <li>Spark Libraries</li>
   <li>Spark Application 運行方式</li>
-  <li>Spark 優化</li>
+  <li>Spark 和 Hadoop 的比較</li>
 </ol>
 
 <h2 id="spark-歷史">Spark 歷史</h2>
@@ -278,36 +283,14 @@ Spark可以理解是 MapReduce 的替代品，它是一個分散式的計算框�
 <p>2009年 Spark 誕生於柏克萊大學的AMPLab，在2014年 Spark 成為 Apache 的頂級項目，當時 Spark 版本 1.0.0。
 2016年5月，Spark 版本2.0發佈，比較大的更新有：</p>
 
-<p>1）引入SparkSession 的概念，提供使用者一致的接口去使用 Spark 的各項功能，統一了舊的SQLContext與HiveContext。</p>
+<p>1）引入 SparkSession 的概念，提供使用者一致的接口去使用 Spark 的各項功能，統一了舊的 SQLContext 與 HiveContext。</p>
 
 <p>2）統一 DataFrame 和 DataSet API，把 DataFrame 當做特殊的 DataSet。</p>
 
 <p>3）在 Spark Streaming 基礎上結合 SparkSQL 加入 High-Level API，Spark Structured Streaming。</p>
 
-<p>2020年6月，Spark 版本3.0發佈。新特性包括自适应查询执行、動態分區裁剪、Join Hints等性能優化，此外也優化了pandas API，
-以及加入 Structured Streaming 的新 UI 界面。有好多新功能值得深入研究。</p>
-
-<h2 id="spark-和-hadoop-的比較">Spark 和 Hadoop 的比較</h2>
-
-<p>Apache Hadoop 從2006年啟動，他的名字是以 Doug Cutting，Hadoop之父的兒子的玩具大象命名。
-Hadoop是一個大數據分佈式儲存和計算的平台，他起源於 Google 的三大論文，</p>
-
-<p>1）GFS：Google 的分佈式文件系統 (Google File System)，Hadoop HDFS 的前身。</p>
-
-<p>2）MapReduce：分佈式並行計算框架。分別統計詞頻 (Map) 再把所有人統計的數加在一起 (Reduce)，得到結果。</p>
-
-<p>3）BigTable：大型分佈式數據庫</p>
-
-<p>前面有提到 Spark 是 MapReduce 的替代品，當然 Spark 和 Hadoop 有著可合可獨立使用的關係，脫離
-Spark，Hadoop 原本就是一個大數據計算平台（分）。但是 Spark 本身只是一個通用計算引擎，它需要和其
-他的分佈式文件系統合作才能運作，Hadoop HDFS 就是一個大家默認的選擇。(合)</p>
-
-<p>Spark 會在記憶體完成計算，而 Hadoop MapReduce 則是每進行一次資料計算就將結果寫回磁盤，再要進行下一個
-計算時又會從磁盤讀取資料。</p>
-
-<p>https://www.modb.pro/db/169190</p>
-
-<p>https://blog.tibame.com/?p=1752</p>
+<p>2020年6月，Spark 3.0發佈，新特性包括自适应查询执行、動態分區裁剪、Join Hints等性能優化，此外也優化了pandas API，
+以及加入 Structured Streaming 的新 UI 界面。有好多新功能都值得深入研究。</p>
 
 <h2 id="spark-libraries">Spark Libraries</h2>
 
@@ -321,7 +304,8 @@ RDD有三個特性：</p>
 <p>2）彈性(Resilient)，如果叢集有節點掛掉，Spark 會根據 RDD Lineage 自動重建RDD。
 每個 RDD 都記錄了自己是怎麼從持久化的儲存元數據計算出來的，也就是 RDD Lineage。</p>
 
-<p>3）分佈式(Distributed)，RDD 可以跨多個節點，並預設把資料儲存在每個節點的記憶體內。除非資料量太龐大，才會選擇將設定成 RDD 保存在硬碟上。</p>
+<p>3）分佈式(Distributed)，RDD 可以跨多個節點，並預設把資料儲存在每個節點的記憶體內。除非資料量太龐大，才會選擇將設定成
+ RDD 保存在磁盤上。</p>
 
 <p>DAG(Directed Acyclic Graph) 有向無環圖，是一組頂點和邊的集合，在 Spark 中頂點表示 RDD 數據集合，邊表示對 RDD 的操作。
 Spark 的 DAGScheduler 會根據 RDD 的 Transformation 操作將 DAG 分為不同的 Stage，每個 Stage 又被分為多個可以並行
@@ -331,8 +315,8 @@ Spark 的 DAGScheduler 會根據 RDD 的 Transformation 操作將 DAG 分為不�
 
 <p>它將關係型資料處理操作和 Spark API 結合。官方網站上列了 SparkSQL 的特點包括：</p>
 
-<p>1）Integrated, SparkSQL將對結構化的 SQL 查詢整合到 Spark 程式中，你可以方便的在 Python, 
-Java, Scala, R 中使用 SQL 或者 DataFrame API 。</p>
+<p>1）Integrated, SparkSQL將對結構化的 SQL 查詢整合到 Spark 程式中，你可以方便的在 Python, Java, Scala, R 中使用
+SQL 或者 DataFrame API 。</p>
 
 <p>2）Uniform Data Access, 各式的資料源都可以用 SparkSQL 讀取。資料源如 Hive，Avro, Parquet, ORC, JSON, and JDBC等。</p>
 
@@ -348,7 +332,7 @@ Spark 是基於記憶體計算的框架，MLlib 又包含了高效率的優化�
 
 <p><strong># Spark GraphX，讓 Spark 支援圖計算的模組。</strong></p>
 
-<h2 id="spark-工作方式">Spark 工作方式</h2>
+<h2 id="spark-application-運行方式">Spark Application 運行方式</h2>
 
 <p>Spark 的運行模式可以分為 client 模式和 cluster 模式:</p>
 
@@ -372,7 +356,26 @@ ResourceManager 請求啟動自己的 Application Master。之後，Application 
 隨後 ApplicationMaster 向 ResourceManager 申請資源。當所有任務計算完畢，ApplicationMaster 向 ResourceManager
 申請註銷和關閉自己。</p>
 
-<h2 id="spark-優化">Spark 優化</h2>
+<h2 id="spark-和-hadoop-的比較">Spark 和 Hadoop 的比較</h2>
+
+<p>Apache Spark 和 Apache Hadoop 有著可合可獨立使用的關係，脫離 Spark，Hadoop 原本就是一個大數據計算平台（獨立）。
+但是 Spark 本身只是一個計算引擎，它需要和其他的分佈式文件系統合作才能運作，Hadoop HDFS 就是一個大家默認的選擇。(合)
+前面有提到 Spark 是 MapReduce 的替代品，Spark 框架實現了一套記憶體版本的 MapReduce，Hadoop MapReduce 則是每進行
+一次資料計算就將結果寫回磁盤。</p>
+
+<p><em>MapReduce 是一個分而治之的概念，把任務拆分成多個子任務各別完成後再結合所有子任務的結果。以 Word Count 計算詞頻的例子
+說明，MapReduce 將要計算的詞頻任務分割成多個分片作為 map 階段子任務的輸入，再將子任務的輸出作為 Reduce 階段子任務的輸入。
+然而 Map子任務和 Reduce子任務通常都會在 Hadoop 集群不同的節點上，需要跨節點去拉 Map 任務的結果，於是 shuffle 登場。
+shuffle (洗牌)的一個目的是盡可能減少不必要的帶寬。</em></p>
+
+<p>回顧一下，Apache Hadoop 從2006年啟動，他的名字是以 Doug Cutting，Hadoop之父的兒子的玩具大象命名。
+Hadoop是一個大數據分佈式儲存和計算的平台，它的長處是海量數據的計算，他起源於 Google 的三大論文，</p>
+
+<p>1）GFS：Google 的分佈式文件系統 (Google File System)，Hadoop HDFS 的前身。</p>
+
+<p>2）MapReduce：分佈式並行計算框架。分別統計詞頻 (Map) 再把所有人統計的數加在一起 (Reduce)，得到結果。</p>
+
+<p>3）BigTable：大型分佈式數據庫</p>
 
 <h2 id="reference">Reference</h2>
 
